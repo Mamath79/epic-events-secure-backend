@@ -3,3 +3,6 @@ venv/
 .DS_Store
 __pycache__/
 .env
+brouillon_A.py
+brouillon_B.py
+brouillon_C.py
