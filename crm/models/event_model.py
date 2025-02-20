@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from database import Base
-import datetime
+from datetime import datetime
+from database.base import Base  # Import correct
 
 class Event(Base):
     __tablename__ = "events"
@@ -13,13 +13,13 @@ class Event(Base):
     location = Column(String(70), nullable=True)
     attendees = Column(Integer, nullable=True)
     note = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=None, onupdate=datetime.datetime.utcnow)
-    deleted_at = Column(DateTime, default=None, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=True, onupdate=datetime.utcnow)
+    deleted_at = Column(DateTime, nullable=True)
+    clients_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
 
-    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
-
+    # Relation avec Client
     client = relationship("Client", back_populates="events")
 
     def __repr__(self):
-        return f"<Event {self.title} - Client {self.client_id}>"
+        return f"<Event {self.id} - {self.title} ({self.event_startdate} to {self.event_enddate})>"
