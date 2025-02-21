@@ -12,7 +12,6 @@ class Event:
         self.created_at = created_at
         self.updated_at = updated_at
         self.deleted_at = deleted_at
-        self.clients_id = clients_id  # Lien avec un client
-
+        self.clients_id = clients_id  
     def __repr__(self):
         return f"<Event {self.title} - Client {self.clients_id}>"

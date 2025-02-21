@@ -8,12 +8,12 @@ class ContractStatus(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     status = Column(String(45), nullable=False)
-    created_at = Column(DateTime, nullable=True, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow) 
     updated_at = Column(DateTime, nullable=True, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime, nullable=True)
 
     # Relation avec Contracts
-    contracts = relationship("Contract", back_populates="status")
+    contracts = relationship("Contract", back_populates="status", cascade="all, delete", passive_deletes=True)
 
     def __repr__(self):
         return f"<ContractStatus {self.id} - {self.status}>"

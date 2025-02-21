@@ -14,8 +14,8 @@ class Contract:
         
         self.id = id
         self.total_amount = total_amount
-        self.contract_status_id = contract_status_id  # Référence vers contract_status
-        self.clients_id = clients_id  # Référence vers un client
+        self.contract_status_id = contract_status_id  
+        self.clients_id = clients_id  
         self.created_at = created_at
         self.updated_at = updated_at
         self.deleted_at = deleted_at

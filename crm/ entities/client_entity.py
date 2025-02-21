@@ -21,7 +21,7 @@ class Client:
         self.creation_date = creation_date
         self.update_date = update_date
         self.delete_at = delete_at
-        self.companies_id = companies_id  # Lien avec une entreprise
+        self.companies_id = companies_id  
 
     def __repr__(self):
         return f"<Client {self.first_name} {self.last_name} ({self.email})>"
