@@ -1,6 +1,7 @@
 from crm.models.departments_model import Department
 from crm.models.departments_has_permissions_model import DepartmentHasPermission
 from crm.models.permissions_model import Permission
+from crm.models.users_model import User
 from crm.models.users_has_clients_model import UserHasClient
 from crm.models.users_has_events_model import UserHasEvent
 from crm.models.clients_model import Client

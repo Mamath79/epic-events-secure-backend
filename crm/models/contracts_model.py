@@ -7,7 +7,7 @@ class Contract(Base):
     __tablename__ = "contracts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    total_amount = Column(Float, nullable=True)
+    total_amount = Column(Float, nullable=False)
     contract_status_id = Column(Integer, ForeignKey("contract_status.id", ondelete="SET NULL"), nullable=True)
     clients_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
