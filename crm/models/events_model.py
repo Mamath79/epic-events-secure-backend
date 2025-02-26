@@ -20,7 +20,7 @@ class Event(Base):
      
     # Relation avec Client
     client = relationship("Client", back_populates="events", passive_deletes=True)  
-    users = relationship("User", secondary="users_as_events", back_populates="events", passive_deletes=True)
+    users = relationship("User", secondary="users_has_events", back_populates="events", passive_deletes=True)
 
     def __repr__(self):
         return f"Event(id={self.id}, title='{self.title}', from {self.event_startdate} to {self.event_enddate})"

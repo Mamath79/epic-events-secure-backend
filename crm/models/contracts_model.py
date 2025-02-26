@@ -17,6 +17,7 @@ class Contract(Base):
     # Relations
     client = relationship("Client", back_populates="contracts", passive_deletes=True)
     status = relationship("ContractStatus", back_populates="contracts")
+    invoices = relationship("Invoice", back_populates="contract")
     
 
 

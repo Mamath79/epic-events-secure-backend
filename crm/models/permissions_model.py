@@ -14,7 +14,7 @@ class Permission(Base):
 
     # Relation avec Department
     departments = relationship("Department",
-                               secondary="departements_has_permissions",
+                               secondary="departments_has_permissions",
                                back_populates="permissions",
                                passive_deletes=True)
 

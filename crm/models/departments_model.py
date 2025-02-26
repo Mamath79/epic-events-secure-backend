@@ -1,10 +1,11 @@
+from crm.database.base import Base
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
-from crm.database.base import Base  
+
 
 class Department(Base):
-    __tablename__ = "departements"
+    __tablename__ = "departments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(45), nullable=False)
@@ -16,7 +17,7 @@ class Department(Base):
     users = relationship("User", back_populates="department", passive_deletes=True)
 
     # Relation avec Permissions
-    permissions = relationship("Permission", secondary="departements_has_permissions", back_populates="departments")
+    permissions = relationship("Permission", secondary="departments_has_permissions", back_populates="departments")
 
     def __repr__(self):
-        return f"Departement(id={self.id}, title='{self.title}'"
+        return f"Department(id={self.id}, title='{self.title}'"
