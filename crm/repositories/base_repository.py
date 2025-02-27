@@ -22,7 +22,11 @@ class BaseRepository:
         """
         Crée une nouvelle entité.
         """
-        entity = self.model(**data)
+        if isinstance(data, dict):
+            entity = self.model(**data)
+        else:
+            entity = data
+
         self.session.add(entity)
         self.session.commit()
         self.session.refresh(entity)
