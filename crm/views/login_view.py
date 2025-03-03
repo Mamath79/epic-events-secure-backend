@@ -5,12 +5,30 @@ from rich.prompt import Prompt
 console = Console()
 
 class LoginView:
+
     @staticmethod
-    def prompt_login():
-        """Affiche l'écran de connexion et demande les identifiants"""
+    def login_menu():
+        """
+        Affiche l'écran de connexion
+        """
         console.print("[bold cyan]╭─────────────────────────╮[/bold cyan]")
         console.print("[bold cyan]│ Connexion à Epic Events │[/bold cyan]")
         console.print("[bold cyan]╰─────────────────────────╯[/bold cyan]")
+
+        console.print("[1] Login")
+        console.print("[0] exit")
+
+        choice = console.input("[bold cyan]Sélectionnez une option > [/bold cyan]")
+
+        return choice
+        
+
+    @staticmethod
+    def prompt_login():
+        """
+        demande les identifiants
+        """
+
         email = Prompt.ask("Email")
         password = Prompt.ask("Mot de passe", password=True)
         return email, password

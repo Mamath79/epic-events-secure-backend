@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 def user():
     """Fixture pour créer un utilisateur de test."""
     u = User(username="test_user", email="test@example.com")
-    u.set_password("MonSuperMotDePasse123!")
+    u.password("MonSuperMotDePasse123!")
     return u
 
 

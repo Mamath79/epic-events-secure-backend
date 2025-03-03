@@ -1,12 +1,13 @@
 import click
-from crm.controllers.user_controller import login
+from crm.controllers.login_controller import EnterCrm
 
 @click.group()
 def cli():
     """Application CLI Epic Events"""
     pass
 
-cli.add_command(login)
+cli.add_command(EnterCrm)
 
 if __name__ == "__main__":
+    EnterCrm()
     cli()

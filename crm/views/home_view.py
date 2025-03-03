@@ -1,9 +1,10 @@
 from rich.console import Console
 from rich.panel import Panel
+import click
 
 console = Console()
 
-class MenuView:
+class HomeView:
     @staticmethod
     def show_menu():
         console.print(Panel.fit("[bold blue]Menu Principal[/bold blue]"))
@@ -17,3 +18,10 @@ class MenuView:
 
         return choice
 
+    @staticmethod
+    def show_logout():
+        click.echo('Au revoir !')
+
+    @staticmethod
+    def show_invalid_option():
+        click.echo('Invalid Options !')

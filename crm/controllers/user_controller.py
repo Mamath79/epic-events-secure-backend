@@ -2,29 +2,17 @@ import click
 from crm.database.base import SessionLocal
 from crm.services.user_service import UserService
 from crm.views.user_view import UserView
-from crm.views.login_view import LoginView
 from crm.utils.auth import requires_auth
+
+
+@click.command()
+def user_menu():
+    print("Menu de gestion des évenements")
 
 @click.group()
 def user():
     """Gestion des utilisateurs"""
     pass
-
-@click.command()
-def login():
-    """Commande CLI pour gérer l'authentification"""
-    email, password = LoginView.prompt_login()
-
-    db_session = SessionLocal()
-    user_service = UserService(db_session)
-    
-    token = user_service.authenticate(email, password)
-    db_session.close()
-
-    if token:
-        LoginView.show_success_login()
-    else:
-        LoginView.show_error_login()
 
 @click.command()
 @requires_auth(required_roles=[3])  # Gestion uniquement
@@ -80,7 +68,6 @@ def delete_user():
     UserView.show_user_deletion(user_id)
 
 # Ajouter les commandes au groupe user
-user.add_command(login)
 user.add_command(list_users)
 user.add_command(create_user)
 user.add_command(update_user)
