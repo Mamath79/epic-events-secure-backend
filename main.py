@@ -1,5 +1,8 @@
 import click
+import logging
 from crm.controllers.login_controller import EnterCrm
+import config
+
 
 @click.group()
 def cli():
@@ -10,4 +13,3 @@ cli.add_command(EnterCrm)
 
 if __name__ == "__main__":
     EnterCrm()
-    cli()
