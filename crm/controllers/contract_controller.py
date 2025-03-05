@@ -2,6 +2,8 @@ import click
 from crm.views.contract_view import ContractView
 from crm.services.contract_service import ContractService
 from crm.database.base import SessionLocal
+from crm.utils.auth import requires_auth
+
 
 def contract_menu():
     """
@@ -26,7 +28,8 @@ def contract_menu():
         else:
             click.echo("Option invalide, veuillez réessayer.")
 
-def list_all_contracts():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def list_all_contracts(user):
     """Liste tous les contrats."""
     session = SessionLocal()
     service = ContractService(session)
@@ -38,7 +41,8 @@ def list_all_contracts():
     else:
         click.echo("Aucun contrat trouvé.")
 
-def get_contract_by_id():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def get_contract_by_id(user):
     """Récupère un contrat par son ID."""
     contract_id = click.prompt("Entrez l'ID du contrat", type=int)
     
@@ -52,7 +56,8 @@ def get_contract_by_id():
     else:
         click.echo("Contrat introuvable.")
 
-def create_contract():
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+def create_contract(user):
     """Création d'un nouveau contrat."""
     data = ContractView.prompt_contract_data()
 
@@ -65,7 +70,8 @@ def create_contract():
     except Exception as e:
         click.echo(f"Erreur lors de la création du contrat : {e}")
 
-def update_contract():
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+def update_contract(user):
     """Mise à jour d'un contrat existant."""
     contract_id = click.prompt("Entrez l'ID du contrat à modifier", type=int)
     
@@ -86,7 +92,8 @@ def update_contract():
     except Exception as e:
         click.echo(f"Erreur lors de la mise à jour : {e}")
 
-def delete_contract():
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+def delete_contract(user):
     """Suppression d'un contrat."""
     contract_id = click.prompt("Entrez l'ID du contrat à supprimer", type=int)
 

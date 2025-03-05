@@ -55,7 +55,7 @@ def get_user_by_id(user):
     else:
         click.echo("Utilisateur introuvable.")
 
-@requires_auth(required_roles=[1, 2, 3])
+@requires_auth(required_roles=[1])
 def create_user(user):
     """Ajoute un nouvel utilisateur."""
     data = UserView.prompt_user_data()
@@ -65,11 +65,11 @@ def create_user(user):
     try:
         new_user = service.create(data)
         session.close()
-        click.echo(f"✅ Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès !")
+        click.echo(f"Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès !")
     except Exception as e:
-        click.echo(f"❌ Erreur lors de la création de l'utilisateur : {e}")
+        click.echo(f"Erreur lors de la création de l'utilisateur : {e}")
 
-@requires_auth(required_roles=[1, 2, 3])
+@requires_auth(required_roles=[1])
 def update_user(user):
     """Met à jour un utilisateur existant avec un menu interactif."""
     user_id = click.prompt("Entrez l'ID de l'utilisateur à modifier", type=int)
@@ -80,7 +80,7 @@ def update_user(user):
 
     if not user:
         session.close()
-        click.echo("❌ Utilisateur introuvable.")
+        click.echo("Utilisateur introuvable.")
         return
 
     update_data = UserView.prompt_user_update(user)
@@ -88,11 +88,11 @@ def update_user(user):
     try:
         updated_user = service.update(user_id, update_data)
         session.close()
-        click.echo(f"✅ Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour !")
+        click.echo(f"Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour !")
     except Exception as e:
-        click.echo(f"❌ Erreur lors de la mise à jour : {e}")
+        click.echo(f"Erreur lors de la mise à jour : {e}")
 
-@requires_auth(required_roles=[1, 2, 3])
+@requires_auth(required_roles=[1])
 def delete_user(user):
     """Supprime un utilisateur avec confirmation."""
     user_id = click.prompt("Entrez l'ID de l'utilisateur à supprimer", type=int)
@@ -103,14 +103,14 @@ def delete_user(user):
 
     if not user:
         session.close()
-        click.echo("❌ Utilisateur introuvable.")
+        click.echo("Utilisateur introuvable.")
         return
 
-    confirm = click.confirm(f"❗ Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?", default=False)
+    confirm = click.confirm(f"Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?", default=False)
     if confirm:
         service.delete(user_id)
         session.close()
-        click.echo("🗑️ Utilisateur supprimé avec succès.")
+        click.echo("Utilisateur supprimé avec succès.")
     else:
         session.close()
-        click.echo("❌ Suppression annulée.")
+        click.echo("Suppression annulée.")

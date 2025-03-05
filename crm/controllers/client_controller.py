@@ -2,6 +2,10 @@ import click
 from crm.views.client_view import ClientView
 from crm.services.client_service import ClientService
 from crm.database.base import SessionLocal
+from crm.utils.auth import requires_auth
+from crm.controllers.company_controller import company_menu
+
+
 
 def client_menu():
     """
@@ -21,12 +25,15 @@ def client_menu():
             update_client()
         elif choice == 5:
             delete_client()
+        elif choice == 6:
+            company_menu()
         elif choice == 0:
             break
         else:
             click.echo("Option invalide, veuillez réessayer.")
 
-def list_all_clients():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def list_all_clients(user):
     """Liste tous les clients."""
     session = SessionLocal()
     service = ClientService(session)
@@ -38,7 +45,8 @@ def list_all_clients():
     else:
         click.echo("Aucun client trouvé.")
 
-def get_client_by_id():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def get_client_by_id(user):
     """Récupère un client par son ID."""
     client_id = click.prompt("Entrez l'ID du client", type=int)
     
@@ -52,7 +60,8 @@ def get_client_by_id():
     else:
         click.echo("Client introuvable.")
 
-def create_client():
+@requires_auth(required_roles=[1, 3])
+def create_client(user):
     """Création d'un nouveau client."""
     data = ClientView.prompt_client_data()
 
@@ -65,7 +74,8 @@ def create_client():
     except Exception as e:
         click.echo(f"Erreur lors de la création du client : {e}")
 
-def update_client():
+@requires_auth(required_roles=[1, 3])
+def update_client(user):
     """Mise à jour d'un client existant."""
     client_id = click.prompt("Entrez l'ID du client à modifier", type=int)
     
@@ -86,7 +96,8 @@ def update_client():
     except Exception as e:
         click.echo(f"Erreur lors de la mise à jour : {e}")
 
-def delete_client():
+@requires_auth(required_roles=[1])
+def delete_client(user):
     """Suppression d'un client."""
     client_id = click.prompt("Entrez l'ID du client à supprimer", type=int)
 

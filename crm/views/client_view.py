@@ -21,6 +21,7 @@ class ClientView:
         console.print("[3] Créer un Client")
         console.print("[4] Modifier un Client")
         console.print("[5] Supprimer un Client")
+        console.print("[6] Gestion Client Company")
         console.print("[0] Retour au menu principal")
 
     @staticmethod

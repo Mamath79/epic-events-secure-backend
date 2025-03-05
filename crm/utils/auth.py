@@ -1,5 +1,6 @@
 import jwt
 import os
+from pathlib import Path
 import click
 from functools import wraps
 from dotenv import load_dotenv
@@ -14,7 +15,8 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY est manquant. Ajoutez-le dans le fichier .env")
 
 # Fichier où stocker le token localement
-TOKEN_FILE = "auth_token.txt"
+BASE_DIR = Path(__file__).resolve().parent.parent  # Va remonter au dossier 'crm'
+TOKEN_FILE = BASE_DIR / "utils" / "auth_token.txt"
 
 def save_token(token):
     """ Sauvegarde le token JWT dans un fichier local """
@@ -28,10 +30,12 @@ def load_token():
             return file.read().strip()
     return None
 
-def requires_auth(required_roles=None):
+def requires_auth(required_roles=None, read_only=False):
     """
-    Décorateur CLI pour vérifier l'authentification et les permissions des utilisateurs.
-    - `required_roles`: Liste des `departments_id` autorisés (ex: [1, 2])
+    Décorateur pour gérer l'authentification et les permissions des utilisateurs.
+
+    - `required_roles`: Liste des `departments_id` autorisés (ex: [1, 2, 3]).
+    - `read_only`: Si `True`, permet l'accès à tous les utilisateurs en lecture seule.
     """
     def decorator(f):
         @wraps(f)
@@ -39,7 +43,7 @@ def requires_auth(required_roles=None):
             token = load_token()
 
             if not token:
-                click.echo("[bold red]Erreur : Vous devez vous authentifier avec `python main.py login`[/bold red]")
+                click.echo("[bold red]Erreur : Vous devez vous authentifier avec `python main.py login`.[/bold red]")
                 return
 
             try:
@@ -57,7 +61,11 @@ def requires_auth(required_roles=None):
                     click.echo("[bold red]Erreur : Utilisateur introuvable.[/bold red]")
                     return
 
-                # Vérifier les permissions
+                # Lecture seule autorisée pour tous
+                if read_only:
+                    return f(*args, **kwargs, user=user)
+
+                # Vérification stricte des permissions
                 if required_roles and user_department not in required_roles:
                     click.echo("[bold red]Accès refusé : Vous n'avez pas les permissions nécessaires.[/bold red]")
                     return

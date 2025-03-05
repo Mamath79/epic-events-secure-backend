@@ -3,6 +3,7 @@ from crm.views.event_view import EventView
 from crm.services.event_service import EventService
 from crm.database.base import SessionLocal
 from crm.services.user_service import UserService
+from crm.utils.auth import requires_auth
 
 
 def event_menu():
@@ -28,7 +29,8 @@ def event_menu():
         else:
             click.echo("Option invalide, veuillez réessayer.")
 
-def list_all_events():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def list_all_events(user):
     """Liste tous les événements."""
     session = SessionLocal()
     service = EventService(session)
@@ -40,7 +42,8 @@ def list_all_events():
     else:
         click.echo("Aucun événement trouvé.")
 
-def get_event_by_id():
+@requires_auth(read_only=True)  # Tout le monde peut voir
+def get_event_by_id(user):
     """Récupère un événement par son ID."""
     event_id = click.prompt("Entrez l'ID de l'événement", type=int)
     
@@ -54,7 +57,8 @@ def get_event_by_id():
     else:
         click.echo("Événement introuvable.")
 
-def create_event():
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+def create_event(user):
     """Création d'un nouvel événement avec support manager optionnel."""
     session = SessionLocal()
     event_service = EventService(session)
@@ -100,8 +104,8 @@ def create_event():
     finally:
         session.close()
 
-
-def update_event():
+@requires_auth(required_roles=[1, 2, 3])  # Gestionnaires, Commerciaux et support peuvent updater
+def update_event(user):
     """
     Mise à jour d'un événement existant, y compris l'ajout/suppression du support manager.
     """
@@ -144,8 +148,8 @@ def update_event():
         session.close()
 
 
-
-def delete_event():
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent supprimer
+def delete_event(user):
     """Suppression d'un événement."""
     event_id = click.prompt("Entrez l'ID de l'événement à supprimer", type=int)
 
