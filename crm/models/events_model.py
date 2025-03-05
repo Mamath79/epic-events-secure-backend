@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-from crm.database.base import Base  # Import correct
+from crm.database.base import Base
 
 class Event(Base):
     __tablename__ = "events"
@@ -17,9 +17,11 @@ class Event(Base):
     updated_at = Column(DateTime, nullable=True, onupdate=lambda: datetime.now(timezone.utc))
     deleted_at = Column(DateTime, nullable=True)
     clients_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False) 
-     
-    # Relation avec Client
-    client = relationship("Client", back_populates="events", passive_deletes=True)  
+    contracts_id = Column(Integer, ForeignKey("contracts.id", ondelete="CASCADE", use_alter=True), nullable=False)
+
+    # Relations
+    client = relationship("Client", back_populates="events", passive_deletes=True) 
+    contract = relationship("Contract", back_populates="event")
     users = relationship("User", secondary="users_has_events", back_populates="events", passive_deletes=True)
 
     def __repr__(self):

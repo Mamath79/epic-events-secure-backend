@@ -20,11 +20,14 @@ class User(Base):
     updated_at = Column(DateTime, nullable=True, onupdate=lambda: datetime.now(timezone.utc))
     deleted_at = Column(DateTime, nullable=True)
     departments_id = Column(Integer, ForeignKey("departments.id", ondelete="CASCADE"), nullable=False)
+    
+
 
     # Relations
     department = relationship("Department", back_populates="users", passive_deletes=True)
     clients = relationship("Client", secondary="users_has_clients", back_populates="users")
     events = relationship("Event", secondary="users_has_events", back_populates="users")
+    contracts_managed = relationship("Contract", back_populates="sales_contact")
 
     # Getter du mot de passe (empêche l'accès direct)
     @property

@@ -24,16 +24,16 @@ class ContractView:
         """Affiche tous les contrats sous forme de tableau."""
         table = Table(title="Liste des Contrats", show_lines=True)
         table.add_column("ID", style="cyan", justify="center")
-        table.add_column("Client ID", style="green")
-        table.add_column("Montant", style="yellow")
-        table.add_column("Statut", style="magenta")
+        table.add_column("Client ID", style="green", justify="center")
+        table.add_column("Montant (€)", style="yellow", justify="right")
+        table.add_column("Statut", style="magenta", justify="center")
 
         for contract in contracts:
             table.add_row(
                 str(contract.id),
-                str(contract.client_id),
-                f"{contract.amount}€",
-                "Signé" if contract.is_signed else "Non signé"
+                str(contract.clients_id),
+                f"{contract.total_amount}€",
+                ContractView.get_status_label(contract.contract_status_id)
             )
 
         console.print(table)
@@ -42,30 +42,50 @@ class ContractView:
     def display_contract(contract):
         """Affiche les détails d'un contrat."""
         console.print(f"[cyan bold]ID:[/cyan bold] {contract.id}")
-        console.print(f"[cyan bold]Client ID:[/cyan bold] {contract.client_id}")
-        console.print(f"[cyan bold]Montant:[/cyan bold] {contract.amount}€")
-        console.print(f"[cyan bold]Statut:[/cyan bold] {'Signé' if contract.is_signed else 'Non signé'}")
+        console.print(f"[cyan bold]Client ID:[/cyan bold] {contract.clients_id}")
+        console.print(f"[cyan bold]Montant:[/cyan bold] {contract.total_amount}€")
+        console.print(f"[cyan bold]Statut:[/cyan bold] {ContractView.get_status_label(contract.contract_status_id)}")
 
     @staticmethod
     def prompt_contract_data():
         """Demande les informations pour créer un contrat."""
-        client_id = Prompt.ask("ID du Client", type=int)
-        amount = Prompt.ask("Montant", type=float)
-        is_signed = Prompt.ask("Signé (oui/non)", choices=["oui", "non"], default="non") == "oui"
+        clients_id = int(Prompt.ask("ID du Client", default="1"))
+        total_amount = float(Prompt.ask("Montant (€)", default="0"))
+        
+        console.print("\n[bold cyan]📌 Sélectionnez le statut du contrat :[/bold cyan]")
+        console.print("[1] En attente de signature")
+        console.print("[2] Signé")
+        console.print("[3] Annulé")
+        contract_status_id = int(Prompt.ask("Choisissez un ID de statut", choices=["1", "2", "3"], default="1"))
 
         return {
-            "client_id": client_id,
-            "amount": amount,
-            "is_signed": is_signed
+            "clients_id": clients_id,
+            "total_amount": total_amount,
+            "contract_status_id": contract_status_id
         }
 
     @staticmethod
     def prompt_contract_update(contract):
         """Demande les nouvelles informations pour modifier un contrat."""
-        amount = Prompt.ask("Montant", default=str(contract.amount), type=float)
-        is_signed = Prompt.ask("Signé (oui/non)", choices=["oui", "non"], default="oui" if contract.is_signed else "non") == "oui"
+        total_amount = float(Prompt.ask("Montant (€)", default=str(contract.total_amount)))
+
+        console.print("\n[bold cyan]📌 Modifier le statut du contrat :[/bold cyan]")
+        console.print("[1] En attente de signature")
+        console.print("[2] Signé")
+        console.print("[3] Annulé")
+        contract_status_id = int(Prompt.ask("Choisissez un ID de statut", choices=["1", "2", "3"], default=str(contract.contract_status_id)))
 
         return {
-            "amount": amount,
-            "is_signed": is_signed
+            "total_amount": total_amount,
+            "contract_status_id": contract_status_id
         }
+
+    @staticmethod
+    def get_status_label(status_id):
+        """Renvoie le libellé du statut en fonction de l'ID."""
+        status_labels = {
+            1: "En attente de signature",
+            2: "Signé",
+            3: "Annulé"
+        }
+        return status_labels.get(status_id, "Inconnu")

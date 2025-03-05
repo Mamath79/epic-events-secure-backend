@@ -6,6 +6,7 @@ def test_client_service_create(client_service):
     client = client_service.create({"first_name": "Alice", "last_name": "Smith", "email": "alice@email.com"})
     assert client.id is not None
 
+
 def test_contract_service_create(contract_service, test_session):
     client = Client(first_name="Alice", last_name="Smith", email="alice@email.com")
     test_session.add(client)
@@ -26,14 +27,35 @@ def test_contract_service_create(contract_service, test_session):
     contract = contract_service.create(contract_data)
     assert contract.id is not None
 
-    assert contract.id is not None
 
 def test_event_service_create(event_service, test_session):
     client = Client(first_name="Alice", last_name="Smith", email="alice@email.com")
     test_session.add(client)
     test_session.commit()
-    event = event_service.create({"title": "Conference", "clients_id": client.id})
+
+    contract_status = test_session.query(ContractStatus).filter_by(status="Signé").first()
+    if not contract_status:
+        contract_status = ContractStatus(status="Signé")  # Ajout d'un statut valide
+        test_session.add(contract_status)
+        test_session.commit()
+
+    contract = Contract(
+        clients_id=client.id,
+        total_amount=5000,
+        contract_status_id=contract_status.id  # Associer un statut valide
+    )
+    test_session.add(contract)
+    test_session.commit()
+
+    event_data = {
+        "title": "Conference",
+        "clients_id": client.id,
+        "contracts_id": contract.id  # Correction ici, il manquait cette clé
+    }
+
+    event = event_service.create(event_data)
     assert event.id is not None
+
 
 def test_user_service_create(user_service, test_session):
     department = test_session.query(Department).filter_by(id=1).first()

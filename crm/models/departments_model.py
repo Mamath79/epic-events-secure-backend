@@ -16,8 +16,5 @@ class Department(Base):
     # Relation avec Users
     users = relationship("User", back_populates="department", passive_deletes=True)
 
-    # Relation avec Permissions
-    permissions = relationship("Permission", secondary="departments_has_permissions", back_populates="departments")
-
     def __repr__(self):
         return f"Department(id={self.id}, title='{self.title}'"

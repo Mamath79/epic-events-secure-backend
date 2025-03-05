@@ -27,9 +27,29 @@ def test_event_repository_create(event_repo, test_session):
     client = Client(first_name="John", last_name="Doe", email="johndoe@email.com")
     test_session.add(client)
     test_session.commit()
-    event = Event(title="Event Test", clients_id=client.id)
+
+    # Vérification et création d'un statut de contrat valide
+    contract_status = test_session.query(ContractStatus).filter_by(status="Signé").first()
+    if not contract_status:
+        contract_status = ContractStatus(status="Signé")  
+        test_session.add(contract_status)
+        test_session.commit()
+
+    # Création et enregistrement du contrat avec un statut valide
+    contract = Contract(
+        clients_id=client.id,
+        total_amount=1000,
+        contract_status_id=contract_status.id  
+    )
+    test_session.add(contract)
+    test_session.commit()
+
+    # --- Correction ici : Ajout de contracts_id pour éviter l'erreur d'intégrité ---
+    event = Event(title="Event Test", clients_id=client.id, contracts_id=contract.id)
     event_repo.create(event)
-    assert event.id is not None
+    
+    assert event.id is not None  # Vérification que l'event est bien créé
+
 
 def test_user_repository_create(user_repo, test_session):
     department = test_session.query(Department).filter_by(id=1).first()

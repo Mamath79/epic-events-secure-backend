@@ -5,20 +5,26 @@ from argon2 import PasswordHasher
 
 @pytest.fixture
 def user():
-    """Fixture pour créer un utilisateur de test."""
+    """
+    Fixture pour créer un utilisateur de test.
+    """
     u = User(username="test_user", email="test@example.com")
-    u.password("MonSuperMotDePasse123!")
+    u.password="MonSuperMotDePasse123!"
     return u
 
 
 def test_password_hashing(user):
-    """Test que le mot de passe est bien hashé."""
-    assert user.password is not None
-    assert user.password.startswith("$argon2id$")
+    """
+    Test que le mot de passe est bien hashé.
+    """
+    assert user._password is not None
+    assert user._password.startswith("$argon2id$")
 
 
 def test_correct_password_verification(user):
-    """Test que la vérification du bon mot de passe fonctionne."""
+    """
+    Test que la vérification du bon mot de passe fonctionne.
+    """
     assert user.check_password("MonSuperMotDePasse123!") is True
 
 

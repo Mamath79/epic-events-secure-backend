@@ -10,16 +10,18 @@ class Contract(Base):
     total_amount = Column(Float, nullable=False)
     contract_status_id = Column(Integer, ForeignKey("contract_status.id", ondelete="SET NULL"), nullable=True)
     clients_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
+    sales_contact_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, nullable=True, onupdate=lambda: datetime.now(timezone.utc))
     deleted_at = Column(DateTime, nullable=True)
+    
 
     # Relations
     client = relationship("Client", back_populates="contracts", passive_deletes=True)
     status = relationship("ContractStatus", back_populates="contracts")
     invoices = relationship("Invoice", back_populates="contract")
-    
-
+    event = relationship("Event", back_populates="contract")
+    sales_contact = relationship("User", back_populates="contracts_managed")
 
     def __repr__(self):
         return f"Contract(id={self.id}, Client_ID={self.clients_id}, Status_ID={self.contract_status_id or None})"
