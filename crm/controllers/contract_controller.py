@@ -1,8 +1,10 @@
 import click
+from sentry_sdk import capture_exception
 from crm.views.contract_view import ContractView
 from crm.services.contract_service import ContractService
 from crm.database.base import SessionLocal
 from crm.utils.auth import requires_auth
+from crm.utils.logger import log_error, log_info
 
 
 def contract_menu():
@@ -26,91 +28,114 @@ def contract_menu():
         elif choice == 0:
             break
         else:
-            click.echo("Option invalide, veuillez réessayer.")
+            click.echo("[red]Option invalide, veuillez réessayer.[/red]")
 
 @requires_auth(read_only=True)  # Tout le monde peut voir
 def list_all_contracts(user):
     """Liste tous les contrats."""
-    session = SessionLocal()
-    service = ContractService(session)
-    contracts = service.get_all()
-    session.close()
+    try:
+        with SessionLocal() as session:
+            service = ContractService(session)
+            contracts = service.get_all()
 
-    if contracts:
-        ContractView.display_contracts(contracts)
-    else:
-        click.echo("Aucun contrat trouvé.")
+            if contracts:
+                ContractView.display_contracts(contracts)
+            else:
+                click.echo("Aucun contrat trouvé.")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération des contrats : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(read_only=True)  # Tout le monde peut voir
 def get_contract_by_id(user):
     """Récupère un contrat par son ID."""
-    contract_id = click.prompt("Entrez l'ID du contrat", type=int)
-    
-    session = SessionLocal()
-    service = ContractService(session)
-    contract = service.get_by_id(contract_id)
-    session.close()
+    try:
+        contract_id = click.prompt("Entrez l'ID du contrat", type=int)
 
-    if contract:
-        ContractView.display_contract(contract)
-    else:
-        click.echo("Contrat introuvable.")
+        with SessionLocal() as session:
+            service = ContractService(session)
+            contract = service.get_by_id(contract_id)
+
+            if contract:
+                ContractView.display_contract(contract)
+            else:
+                click.echo("[red]Contrat introuvable.[/red]")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération du contrat {contract_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
 def create_contract(user):
     """Création d'un nouveau contrat."""
-    data = ContractView.prompt_contract_data()
-
-    session = SessionLocal()
-    service = ContractService(session)
     try:
-        new_contract = service.create(data)
-        session.close()
-        click.echo(f"Contrat {new_contract.id} ajouté avec succès !")
-    except Exception as e:
-        click.echo(f"Erreur lors de la création du contrat : {e}")
+        data = ContractView.prompt_contract_data()
 
-@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+        with SessionLocal() as session:
+            service = ContractService(session)
+            new_contract = service.create(data)
+
+            log_info(f"Contrat {new_contract.id} créé avec succès.")
+            ContractView.display_message(f"Contrat {new_contract.id} ajouté avec succès !", "success")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la création du contrat : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent modifier
 def update_contract(user):
     """Mise à jour d'un contrat existant."""
-    contract_id = click.prompt("Entrez l'ID du contrat à modifier", type=int)
-    
-    session = SessionLocal()
-    service = ContractService(session)
-    contract = service.get_by_id(contract_id)
-
-    if not contract:
-        session.close()
-        click.echo("Contrat introuvable.")
-        return
-
-    new_data = ContractView.prompt_contract_update(contract)
     try:
-        updated_contract = service.update(contract_id, new_data)
-        session.close()
-        click.echo(f"Contrat {updated_contract.id} mis à jour !")
-    except Exception as e:
-        click.echo(f"Erreur lors de la mise à jour : {e}")
+        contract_id = click.prompt("Entrez l'ID du contrat à modifier", type=int)
 
-@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+        with SessionLocal() as session:
+            service = ContractService(session)
+            contract = service.get_by_id(contract_id)
+
+            if not contract:
+                ContractView.display_message("Contrat introuvable.", "error")
+                return
+
+            new_data = ContractView.prompt_contract_update(contract)
+            if not new_data:
+                return
+
+            updated_contract = service.update(contract_id, new_data)
+            log_info(f"Contrat {updated_contract.id} mis à jour avec succès.")
+            ContractView.display_message(f"Contrat {updated_contract.id} mis à jour avec succès !", "success")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la mise à jour du contrat {contract_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+
+@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent supprimer
 def delete_contract(user):
     """Suppression d'un contrat."""
-    contract_id = click.prompt("Entrez l'ID du contrat à supprimer", type=int)
+    try:
+        contract_id = click.prompt("Entrez l'ID du contrat à supprimer", type=int)
 
-    session = SessionLocal()
-    service = ContractService(session)
-    contract = service.get_by_id(contract_id)
+        with SessionLocal() as session:
+            service = ContractService(session)
+            contract = service.get_by_id(contract_id)
 
-    if not contract:
-        session.close()
-        click.echo("Contrat introuvable.")
-        return
+            if not contract:
+                ContractView.display_message("Contrat introuvable.", "error")
+                return
 
-    confirm = click.confirm(f"Voulez-vous vraiment supprimer le contrat {contract.id} ?", default=False)
-    if confirm:
-        service.delete(contract_id)
-        session.close()
-        click.echo("Contrat supprimé avec succès.")
-    else:
-        session.close()
-        click.echo("Suppression annulée.")
+            confirm = click.confirm(f"⚠️ Voulez-vous vraiment supprimer le contrat {contract.id} ?", default=False)
+            if confirm:
+                service.delete(contract_id)
+                log_info(f"Contrat {contract.id} supprimé avec succès.")
+                ContractView.display_message("Contrat supprimé avec succès.", "success")
+            else:
+                ContractView.display_message("Suppression annulée.", "info")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la suppression du contrat {contract_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")

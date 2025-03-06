@@ -1,10 +1,11 @@
 import click
+from sentry_sdk import capture_exception
 from crm.views.event_view import EventView
 from crm.services.event_service import EventService
-from crm.database.base import SessionLocal
 from crm.services.user_service import UserService
+from crm.database.base import SessionLocal
 from crm.utils.auth import requires_auth
-
+from crm.utils.logger import log_error, log_info
 
 def event_menu():
     """
@@ -27,146 +28,145 @@ def event_menu():
         elif choice == 0:
             break
         else:
-            click.echo("Option invalide, veuillez réessayer.")
+            click.echo("[red]Option invalide, veuillez réessayer.[/red]")
 
 @requires_auth(read_only=True)  # Tout le monde peut voir
 def list_all_events(user):
     """Liste tous les événements."""
-    session = SessionLocal()
-    service = EventService(session)
-    events = service.get_all()
-    session.close()
+    try:
+        with SessionLocal() as session:
+            service = EventService(session)
+            events = service.get_all()
 
-    if events:
-        EventView.display_events(events)
-    else:
-        click.echo("Aucun événement trouvé.")
+            if events:
+                EventView.display_events(events)
+            else:
+                click.echo("Aucun événement trouvé.")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération des événements : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(read_only=True)  # Tout le monde peut voir
 def get_event_by_id(user):
     """Récupère un événement par son ID."""
-    event_id = click.prompt("Entrez l'ID de l'événement", type=int)
-    
-    session = SessionLocal()
-    service = EventService(session)
-    event = service.get_by_id(event_id)
-    session.close()
+    try:
+        event_id = click.prompt("Entrez l'ID de l'événement", type=int)
 
-    if event:
-        EventView.display_event(event)
-    else:
-        click.echo("Événement introuvable.")
+        with SessionLocal() as session:
+            service = EventService(session)
+            event = service.get_by_id(event_id)
+
+            if event:
+                EventView.display_event(event)
+            else:
+                click.echo("[red]Événement introuvable.[/red]")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
 def create_event(user):
     """Création d'un nouvel événement avec support manager optionnel."""
-    session = SessionLocal()
-    event_service = EventService(session)
-    user_service = UserService(session)
-
     try:
-        # Récupération des données depuis la Vue
-        event_data = EventView.prompt_event_data()
+        with SessionLocal() as session:
+            event_service = EventService(session)
+            user_service = UserService(session)
 
-        # Vérification de l'existence du client et du contrat
-        if not event_service.validate_client_contract(event_data["clients_id"], event_data["contracts_id"]):
-            EventView.display_message("Erreur: Client ou Contrat invalide.", "error")
-            return
+            # Récupération des données depuis la Vue
+            event_data = EventView.prompt_event_data()
 
-        # Création de l'événement
-        new_event = event_service.create({
-            "title": event_data["title"],
-            "event_startdate": event_data["event_startdate"],
-            "event_enddate": event_data["event_enddate"],
-            "location": event_data["location"],
-            "attendees": event_data["attendees"],
-            "note": event_data["note"],
-            "contracts_id": event_data["contracts_id"],
-            "clients_id": event_data["clients_id"]
-        })
+            # Vérification de l'existence du client et du contrat
+            if not event_service.validate_client_contract(event_data["clients_id"], event_data["contracts_id"]):
+                EventView.display_message("Erreur : Client ou Contrat invalide.", "error")
+                return
 
-        # Assignation d'un support manager si fourni
-        if event_data["support_id"]:
-            support_user = user_service.get_by_id(event_data["support_id"])
-            if support_user:
-                event_service.assign_support(new_event, support_user)
-                session.commit()  # ✅ On commit ici pour sauvegarder tout en une seule transaction
-                EventView.display_message(f"Support Manager {support_user.username} assigné à l'événement !", "success")
-            else:
-                EventView.display_message(f"Erreur: Aucun utilisateur trouvé avec l'ID {event_data['support_id']}", "error")
+            # Création de l'événement
+            new_event = event_service.create(event_data)
 
-        EventView.display_message(f"Événement {new_event.id} ajouté avec succès !", "success")
-
-    except Exception as e:
-        session.rollback()
-        EventView.display_message(f"Erreur lors de la création de l'événement : {e}", "error")
-
-    finally:
-        session.close()
-
-@requires_auth(required_roles=[1, 2, 3])  # Gestionnaires, Commerciaux et support peuvent updater
-def update_event(user):
-    """
-    Mise à jour d'un événement existant, y compris l'ajout/suppression du support manager.
-    """
-    event_id = click.prompt("Entrez l'ID de l'événement à modifier", type=int)
-    
-    session = SessionLocal()
-    event_service = EventService(session)
-    user_service = UserService(session)
-    event = event_service.get_by_id(event_id)
-
-    if not event:
-        session.close()
-        click.echo("Événement introuvable.")
-        return
-
-    update_data = EventView.prompt_event_update(event)
-
-    try:
-        # Si un ID de support est fourni, on l'ajoute ou on le retire
-        if "support_id" in update_data:
-            support_id = update_data.pop("support_id")
-            if support_id:
-                support_user = user_service.get_by_id(support_id)
+            # Assignation d'un support manager si fourni
+            if event_data.get("support_id"):
+                support_user = user_service.get_by_id(event_data["support_id"])
                 if support_user:
-                    event_service.assign_support(event, support_user)
-                    EventView.display_message(f"Support Manager {support_user.username} mis à jour !", "success")
+                    event_service.assign_support(new_event, support_user)
+                    session.commit()  # Commit après toutes les modifications
+                    EventView.display_message(f"Support Manager {support_user.username} assigné à l'événement !", "success")
                 else:
-                    EventView.display_message(f"Erreur: Aucun utilisateur trouvé avec l'ID {support_id}", "error")
+                    EventView.display_message(f"Erreur : Aucun utilisateur trouvé avec l'ID {event_data['support_id']}", "error")
 
-        # Appliquer les autres modifications
-        updated_event = event_service.update(event_id, update_data)
-        session.commit()
-        EventView.display_message(f"Événement {updated_event.id} mis à jour !", "success")
+            log_info(f"Événement {new_event.id} créé avec succès.")
+            EventView.display_message(f"Événement {new_event.id} ajouté avec succès !", "success")
 
     except Exception as e:
-        session.rollback()
-        EventView.display_message(f"Erreur lors de la mise à jour : {e}", "error")
+        log_error(f"Erreur lors de la création d'un événement : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
-    finally:
-        session.close()
+@requires_auth(required_roles=[1, 2, 3])  # Gestionnaires, Commerciaux et Support peuvent modifier
+def update_event(user):
+    """Mise à jour d'un événement existant, y compris l'ajout/suppression du support manager."""
+    try:
+        event_id = click.prompt("Entrez l'ID de l'événement à modifier", type=int)
 
+        with SessionLocal() as session:
+            event_service = EventService(session)
+            user_service = UserService(session)
+            event = event_service.get_by_id(event_id)
+
+            if not event:
+                click.echo("Événement introuvable.")
+                return
+
+            update_data = EventView.prompt_event_update(event)
+
+            # Gestion du support manager
+            if "support_id" in update_data:
+                support_id = update_data.pop("support_id")
+                if support_id:
+                    support_user = user_service.get_by_id(support_id)
+                    if support_user:
+                        event_service.assign_support(event, support_user)
+                        EventView.display_message(f"Support Manager {support_user.username} mis à jour !", "success")
+                    else:
+                        EventView.display_message(f"Erreur : Aucun utilisateur trouvé avec l'ID {support_id}", "error")
+
+            # Appliquer les autres modifications
+            updated_event = event_service.update(event_id, update_data)
+            session.commit()
+            log_info(f"Événement {updated_event.id} mis à jour avec succès.")
+            EventView.display_message(f"Événement {updated_event.id} mis à jour avec succès !", "success")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la mise à jour de l'événement {event_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent supprimer
 def delete_event(user):
     """Suppression d'un événement."""
-    event_id = click.prompt("Entrez l'ID de l'événement à supprimer", type=int)
+    try:
+        event_id = click.prompt("Entrez l'ID de l'événement à supprimer", type=int)
 
-    session = SessionLocal()
-    service = EventService(session)
-    event = service.get_by_id(event_id)
+        with SessionLocal() as session:
+            service = EventService(session)
+            event = service.get_by_id(event_id)
 
-    if not event:
-        session.close()
-        click.echo("Événement introuvable.")
-        return
+            if not event:
+                EventView.display_message("Événement introuvable.", "error")
+                return
 
-    confirm = click.confirm(f"Voulez-vous vraiment supprimer l'événement {event.id} ?", default=False)
-    if confirm:
-        service.delete(event_id)
-        session.close()
-        click.echo("Événement supprimé avec succès.")
-    else:
-        session.close()
-        click.echo("Suppression annulée.")
+            confirm = click.confirm(f"⚠️ Voulez-vous vraiment supprimer l'événement {event.id} ?", default=False)
+            if confirm:
+                service.delete(event_id)
+                log_info(f"Événement {event.id} supprimé avec succès.")
+                EventView.display_message("Événement supprimé avec succès.", "success")
+            else:
+                EventView.display_message("Suppression annulée.", "info")
+
+    except Exception as e:
+        log_error(f"Erreur lors de la suppression de l'événement {event_id} : {str(e)}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")

@@ -1,8 +1,11 @@
 import click
+from sentry_sdk import capture_exception
 from crm.views.user_view import UserView
 from crm.services.user_service import UserService
 from crm.database.base import SessionLocal
 from crm.utils.auth import requires_auth
+from crm.utils.logger import log_info, log_error
+
 
 def user_menu():
     """
@@ -13,32 +16,44 @@ def user_menu():
         choice = click.prompt("Sélectionnez une option", type=int)
 
         if choice == 1:
+            log_info("Consultation de tous les utilisateurs")
             list_all_users()
         elif choice == 2:
+            log_info("Consultation d'un utilisateur par ID")
             get_user_by_id()
         elif choice == 3:
+            log_info("Création d'un nouvel utilisateur")
             create_user()
         elif choice == 4:
+            log_info("Mise à jour d'un utilisateur")
             update_user()
         elif choice == 5:
+            log_info("Suppression d'un utilisateur")
             delete_user()
         elif choice == 0:
+            log_info("Retour au menu principal")
             break
         else:
-            click.echo("❌ Option invalide, veuillez réessayer.")
+            log_error(f"Option invalide sélectionnée : {choice}")
+            click.echo("Option invalide, veuillez réessayer.")
 
 @requires_auth(required_roles=[1, 2, 3])
 def list_all_users(user):
     """Affiche la liste des utilisateurs."""
     session = SessionLocal()
     service = UserService(session)
-    users = service.get_all()
-    session.close()
-
-    if users:
-        UserView.display_users(users)
-    else:
-        click.echo("Aucun utilisateur trouvé.")
+    try:
+        users = service.get_all()
+        if users:
+            UserView.display_users(users)
+        else:
+            click.echo("Aucun utilisateur trouvé.")
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération des utilisateurs : {e}")
+        capture_exception(e)
+        click.echo("Une erreur est survenue lors de l'affichage des utilisateurs.")
+    finally:
+        session.close()
 
 @requires_auth(required_roles=[1, 2, 3])
 def get_user_by_id(user):
@@ -47,13 +62,18 @@ def get_user_by_id(user):
     
     session = SessionLocal()
     service = UserService(session)
-    user = service.get_by_id(user_id)
-    session.close()
-
-    if user:
-        UserView.display_user(user)
-    else:
-        click.echo("Utilisateur introuvable.")
+    try:
+        user = service.get_by_id(user_id)
+        if user:
+            UserView.display_user(user)
+        else:
+            click.echo("Utilisateur introuvable.")
+    except Exception as e:
+        log_error(f"Erreur lors de la récupération de l'utilisateur {user_id} : {e}")
+        capture_exception(e)
+        click.echo("⚠️ Une erreur est survenue.")
+    finally:
+        session.close()
 
 @requires_auth(required_roles=[1])
 def create_user(user):
@@ -64,10 +84,14 @@ def create_user(user):
     service = UserService(session)
     try:
         new_user = service.create(data)
-        session.close()
+        log_info(f"Utilisateur {new_user.first_name} {new_user.last_name} créé avec succès !")
         click.echo(f"Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès !")
     except Exception as e:
-        click.echo(f"Erreur lors de la création de l'utilisateur : {e}")
+        log_error(f"Erreur lors de la création de l'utilisateur : {e}")
+        capture_exception(e)
+        click.echo(f"Erreur lors de la création de l'utilisateur.")
+    finally:
+        session.close()
 
 @requires_auth(required_roles=[1])
 def update_user(user):
@@ -76,21 +100,24 @@ def update_user(user):
     
     session = SessionLocal()
     service = UserService(session)
-    user = service.get_by_id(user_id)
-
-    if not user:
-        session.close()
-        click.echo("Utilisateur introuvable.")
-        return
-
-    update_data = UserView.prompt_user_update(user)
-
     try:
+        user = service.get_by_id(user_id)
+        if not user:
+            click.echo("Utilisateur introuvable.")
+            return
+
+        update_data = UserView.prompt_user_update(user)
         updated_user = service.update(user_id, update_data)
-        session.close()
+
+        log_info(f"Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour.")
         click.echo(f"Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour !")
+
     except Exception as e:
-        click.echo(f"Erreur lors de la mise à jour : {e}")
+        log_error(f"Erreur lors de la mise à jour de l'utilisateur {user_id} : {e}")
+        capture_exception(e)
+        click.echo("Une erreur est survenue.")
+    finally:
+        session.close()
 
 @requires_auth(required_roles=[1])
 def delete_user(user):
@@ -99,18 +126,22 @@ def delete_user(user):
 
     session = SessionLocal()
     service = UserService(session)
-    user = service.get_by_id(user_id)
+    try:
+        user = service.get_by_id(user_id)
+        if not user:
+            click.echo("Utilisateur introuvable.")
+            return
 
-    if not user:
+        confirm = click.confirm(f"Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?", default=False)
+        if confirm:
+            service.delete(user_id)
+            log_info(f"Utilisateur {user.first_name} {user.last_name} supprimé.")
+            click.echo("Utilisateur supprimé avec succès.")
+        else:
+            click.echo("Suppression annulée.")
+    except Exception as e:
+        log_error(f"Erreur lors de la suppression de l'utilisateur {user_id} : {e}")
+        capture_exception(e)
+        click.echo("Une erreur est survenue.")
+    finally:
         session.close()
-        click.echo("Utilisateur introuvable.")
-        return
-
-    confirm = click.confirm(f"Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?", default=False)
-    if confirm:
-        service.delete(user_id)
-        session.close()
-        click.echo("Utilisateur supprimé avec succès.")
-    else:
-        session.close()
-        click.echo("Suppression annulée.")

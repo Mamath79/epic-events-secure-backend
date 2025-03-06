@@ -1,5 +1,4 @@
 import click
-import logging
 from crm.controllers.login_controller import EnterCrm
 import config
 
