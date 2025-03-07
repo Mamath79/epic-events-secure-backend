@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, DECIMAL
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from crm.database.base import Base
@@ -7,7 +7,8 @@ class Contract(Base):
     __tablename__ = "contracts"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    total_amount = Column(Float, nullable=False)
+    total_amount = Column(DECIMAL(10, 2), nullable=False)
+    payed_amount = Column(DECIMAL(10, 2), nullable=False, default=0.00)
     contract_status_id = Column(Integer, ForeignKey("contract_status.id", ondelete="SET NULL"), nullable=True)
     clients_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
     sales_contact_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
