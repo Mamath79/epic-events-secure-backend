@@ -14,7 +14,6 @@ class ClientService(BaseService):
                 lambda: self.repository.session.query(self.repository.model).filter_by(company_id=company_id).all()
             )
         except Exception as e:
-            error_message = f"Erreur lors de la récupération des clients pour l'entreprise {company_id} : {str(e)}"
-            log_error(error_message)
+            log_error(f"Erreur lors de la récupération des clients pour l'entreprise {company_id} : {str(e)}")
             sentry_sdk.capture_exception(e)
             return None

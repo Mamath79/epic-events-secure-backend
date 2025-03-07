@@ -68,9 +68,9 @@ def get_contract_by_id(user):
         capture_exception(e)
         click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
 
-@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent créer
+@requires_auth(required_roles=[1, 3])
 def create_contract(user):
-    """Création d'un nouveau contrat."""
+    """ Création d'un nouveau contrat. """
     try:
         data = ContractView.prompt_contract_data()
 
@@ -79,16 +79,19 @@ def create_contract(user):
             new_contract = service.create(data)
 
             log_info(f"Contrat {new_contract.id} créé avec succès.")
-            ContractView.display_message(f"Contrat {new_contract.id} ajouté avec succès !", "success")
+            click.echo(f"Contrat {new_contract.id} ajouté avec succès !")
 
+    except ValueError as e:
+        click.echo(f"Erreur de validation : {str(e)}")  # Affiche clairement le problème
     except Exception as e:
         log_error(f"Erreur lors de la création du contrat : {str(e)}")
         capture_exception(e)
-        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+        click.echo("Une erreur s'est produite. Veuillez réessayer.")
 
-@requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent modifier
+
+@requires_auth(required_roles=[1, 3])
 def update_contract(user):
-    """Mise à jour d'un contrat existant."""
+    """ Mise à jour d'un contrat existant. """
     try:
         contract_id = click.prompt("Entrez l'ID du contrat à modifier", type=int)
 
@@ -97,21 +100,21 @@ def update_contract(user):
             contract = service.get_by_id(contract_id)
 
             if not contract:
-                ContractView.display_message("Contrat introuvable.", "error")
+                click.echo("Contrat introuvable.")
                 return
 
             new_data = ContractView.prompt_contract_update(contract)
-            if not new_data:
-                return
-
             updated_contract = service.update(contract_id, new_data)
-            log_info(f"Contrat {updated_contract.id} mis à jour avec succès.")
-            ContractView.display_message(f"Contrat {updated_contract.id} mis à jour avec succès !", "success")
 
+            log_info(f"Contrat {updated_contract.id} mis à jour avec succès.")
+            click.echo(f"Contrat {updated_contract.id} mis à jour avec succès !")
+
+    except ValueError as e:
+        click.echo(f"Erreur de validation : {str(e)}")  # Affiche clairement le problème
     except Exception as e:
         log_error(f"Erreur lors de la mise à jour du contrat {contract_id} : {str(e)}")
         capture_exception(e)
-        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+        click.echo("Une erreur s'est produite. Veuillez réessayer.")
 
 @requires_auth(required_roles=[1, 3])  # Gestionnaires et Commerciaux peuvent supprimer
 def delete_contract(user):

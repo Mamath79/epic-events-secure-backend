@@ -71,7 +71,7 @@ def get_user_by_id(user):
     except Exception as e:
         log_error(f"Erreur lors de la récupération de l'utilisateur {user_id} : {e}")
         capture_exception(e)
-        click.echo("⚠️ Une erreur est survenue.")
+        click.echo("Une erreur est survenue.")
     finally:
         session.close()
 
@@ -89,7 +89,7 @@ def create_user(user):
     except Exception as e:
         log_error(f"Erreur lors de la création de l'utilisateur : {e}")
         capture_exception(e)
-        click.echo(f"Erreur lors de la création de l'utilisateur.")
+        click.echo("Erreur lors de la création de l'utilisateur.")
     finally:
         session.close()
 

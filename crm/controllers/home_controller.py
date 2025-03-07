@@ -17,7 +17,7 @@ class HomeController:
             try:
                 choice = HomeView.show_menu()
 
-                #Conversion en int pour éviter des erreurs inattendues
+                # Conversion en int pour éviter des erreurs inattendues
                 choice = int(choice)
 
                 if choice == 1:
@@ -41,10 +41,10 @@ class HomeController:
                     HomeView.show_invalid_option()
 
             except ValueError:
-                log_error(f"Entrée invalide : {choice}")
-                HomeView.show_error("⚠️ Veuillez entrer un numéro valide.")
+                log_error("Entrée invalide, un nombre était attendu.")
+                HomeView.show_error("Veuillez entrer un numéro valide.")
 
             except Exception as e:
                 log_error(f"Erreur dans le menu principal : {str(e)}")
                 capture_exception(e)
-                HomeView.show_error("⚠️ Une erreur est survenue. Veuillez réessayer.")
+                HomeView.show_error("Une erreur est survenue. Veuillez réessayer.")

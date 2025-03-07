@@ -35,7 +35,7 @@ class UserService(BaseService):
             user = session.query(User).filter_by(email=email).first()
             
             if not user:
-                log_error(f"⚠️ Tentative de connexion avec un email inconnu : {email}")
+                log_error(f"Tentative de connexion avec un email inconnu : {email}")
                 return None  # 🔥 Empêche la divulgation d'existence de l'email
 
             # Comparaison correcte du mot de passe haché avec l'entrée utilisateur
@@ -73,6 +73,6 @@ class UserService(BaseService):
         try:
             return self.repository.session.query(self.repository.model).filter_by(departments_id=department_id).all()
         except Exception as e:
-            log_error(f"🚨 Erreur lors de la récupération des utilisateurs du département {department_id} : {str(e)}")
+            log_error(f"Erreur lors de la récupération des utilisateurs du département {department_id} : {str(e)}")
             capture_exception(e)
             return []

@@ -1,46 +1,87 @@
 import sentry_sdk
 from crm.utils.logger import log_error
+from crm.utils.validation import (
+    validate_email,
+    validate_siret,
+    validate_date,
+    validate_numeric,
+    clean_text,
+    validate_mandatory_field,
+    validate_date_order,
+)
+
 
 class BaseService:
     def __init__(self, repository):
         self.repository = repository
 
     def safe_execute(self, func, *args, **kwargs):
-        """
-        Exécute une fonction en capturant les erreurs avec Sentry et log_error.
-        """
+        """Exécute une fonction en capturant les erreurs avec Sentry et log_error."""
         try:
             return func(*args, **kwargs)
         except Exception as e:
             error_message = f"Erreur dans {func.__name__} : {str(e)}"
-            log_error(error_message)  # Enregistrement dans le log local
-            sentry_sdk.capture_exception(e)  # Capture dans Sentry
-            return None  # Éviter une exception bloquante
+            log_error(error_message)
+            sentry_sdk.capture_exception(e)
+            return None
 
     def get_by_id(self, entity_id):
-        """ Récupère une entité par son ID. """
+        """Récupère une entité par son ID."""
         return self.safe_execute(self.repository.get_by_id, entity_id)
 
     def get_all(self):
-        """ Récupère toutes les entités. """
+        """Récupère toutes les entités."""
         return self.safe_execute(self.repository.get_all)
 
     def create(self, data):
-        """ Crée une nouvelle entité. """
+        """Crée une nouvelle entité après validation des données."""
+        self.validate_inputs(data)
         return self.safe_execute(self.repository.create, data)
 
     def update(self, entity_id, new_data):
-        """ Met à jour une entité existante. """
+        """Met à jour une entité après validation des données."""
         entity = self.get_by_id(entity_id)
         if not entity:
             log_error(f"Tentative de mise à jour d'une entité inexistante (ID: {entity_id})")
-            return None  # On ne lève pas d'erreur bloquante
+            return None
+        self.validate_inputs(new_data)
         return self.safe_execute(self.repository.update, entity, new_data)
 
     def delete(self, entity_id):
-        """ Supprime une entité. """
+        """Supprime une entité."""
         entity = self.get_by_id(entity_id)
         if not entity:
             log_error(f"Tentative de suppression d'une entité inexistante (ID: {entity_id})")
             return None
         return self.safe_execute(self.repository.delete, entity)
+
+    def validate_inputs(self, data):
+        """Valide et nettoie les entrées utilisateur avant insertion en base."""
+        for field, value in data.items():
+            if isinstance(value, str):
+                data[field] = clean_text(value)  # Nettoyage de la chaîne
+
+            if field == "email":
+                if not validate_email(value):
+                    raise ValueError(f"L'email '{value}' est invalide.")
+
+            if field == "siret":
+                if value and not validate_siret(value):
+                    raise ValueError(f"Le SIRET '{value}' est invalide (14 chiffres requis).")
+
+            if field.endswith("_date"):
+                if value and not validate_date(value):
+                    raise ValueError(f"La date '{value}' est invalide (format attendu : YYYY-MM-DD).")
+
+            if field in ["total_amount", "payed_amount"]:
+                if value and not validate_numeric(str(value)):
+                    raise ValueError(f"Le montant '{value}' doit être un nombre valide.")
+
+            if field in ["first_name", "last_name", "title"]:
+                validate_mandatory_field(value, field)
+
+        # Vérifier la cohérence des dates (ex: event_startdate < event_enddate)
+        if "event_startdate" in data and "event_enddate" in data:
+            if not validate_date_order(data["event_startdate"], data["event_enddate"]):
+                raise ValueError("La date de début d'événement doit être antérieure à la date de fin.")
+

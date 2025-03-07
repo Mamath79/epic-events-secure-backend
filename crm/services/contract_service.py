@@ -3,6 +3,7 @@ from crm.services.base_service import BaseService
 from crm.repositories.contract_repository import ContractRepository
 from crm.utils.logger import log_error
 
+
 class ContractService(BaseService):
     def __init__(self, session):
         super().__init__(ContractRepository(session))
@@ -17,6 +18,24 @@ class ContractService(BaseService):
             )
         except Exception as e:
             error_message = f"Erreur lors de la récupération des contrats pour le client {client_id} : {str(e)}"
-            log_error(error_message)  # Log en local
-            sentry_sdk.capture_exception(e)  # Envoi à Sentry
-            return None  #Évite un crash si erreur SQL
+            log_error(error_message)
+            sentry_sdk.capture_exception(e)
+            return None
+
+    def create(self, data):
+        """ Création d'un contrat après validation. """
+        try:
+            self.validate_inputs(data)  # Validation automatique avec BaseService
+            return super().create(data)
+        except ValueError as e:
+            log_error(f"Validation échouée lors de la création du contrat : {str(e)}")
+            raise e
+
+    def update(self, contract_id, new_data):
+        """ Mise à jour d'un contrat après validation. """
+        try:
+            self.validate_inputs(new_data)  # Validation automatique avec BaseService
+            return super().update(contract_id, new_data)
+        except ValueError as e:
+            log_error(f"Validation échouée lors de la mise à jour du contrat {contract_id} : {str(e)}")
+            raise e

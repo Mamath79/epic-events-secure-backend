@@ -40,4 +40,4 @@ def EnterCrm():
         except Exception as e:
             log_error(f"Erreur lors de l'authentification : {str(e)}")
             capture_exception(e)
-            click.echo("⚠️ Une erreur est survenue. Veuillez réessayer.")
+            click.echo("Une erreur est survenue. Veuillez réessayer.")
