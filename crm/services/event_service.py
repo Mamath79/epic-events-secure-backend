@@ -17,25 +17,27 @@ class EventService(BaseService):
         self.user_repo = UserRepository(session)
 
     def validate_event_data(self, data):
-        """ Vérifie la validité des données avant insertion. """
+        """Vérifie la validité des données avant insertion."""
         self.validate_inputs(data)  # Validation et nettoyage des inputs
         if not self.validate_client_contract(data["clients_id"], data["contracts_id"]):
             raise ValueError("Le client ou le contrat spécifié n'existe pas.")
 
     def check_event_dates(self, event):
-        """ Vérifie que la date de fin ne peut pas être avant la date de début. """
+        """Vérifie que la date de fin ne peut pas être avant la date de début."""
         if event.event_startdate and event.event_enddate:
             if event.event_enddate < event.event_startdate:
-                raise ValueError("La date de fin ne peut pas être avant la date de début.")
+                raise ValueError(
+                    "La date de fin ne peut pas être avant la date de début."
+                )
 
     def validate_client_contract(self, clients_id, contracts_id):
-        """ Vérifie que le client et le contrat existent. """
+        """Vérifie que le client et le contrat existent."""
         client = self.client_repo.get_by_id(clients_id)
         contract = self.contract_repo.get_by_id(contracts_id)
         return client is not None and contract is not None
-    
+
     def assign_support(self, event, user):
-        """ Assigne ou retire un support manager d'un événement. """
+        """Assigne ou retire un support manager d'un événement."""
         try:
             if not event:
                 raise ValueError("Événement introuvable.")
@@ -47,29 +49,32 @@ class EventService(BaseService):
                 event.users.remove(user)  # Supprime si déjà assigné
             else:
                 event.users.append(user)  # Ajoute sinon
-            
+
             self.repository.session.commit()
             log_info(f"Utilisateur {user.id} assigné à l'événement {event.id}")
-        
+
         except ValueError as e:
             log_error(f"Erreur de validation : {str(e)}")
             raise
         except Exception as e:
-            log_error(f"Erreur lors de l'assignation du support (event_id={event.id}, user_id={user.id}): {str(e)}")
+            log_error(
+                f"Erreur lors de l'assignation du support (event_id={event.id}, user_id={user.id}): {str(e)}"
+            )
             self.repository.session.rollback()
             sentry_sdk.capture_exception(e)
             raise
 
-
     def create(self, data):
-        """ Crée un événement après validation des données. """
+        """Crée un événement après validation des données."""
         try:
             self.validate_event_data(data)
             event = super().create(data)
             self.check_event_dates(event)
             return event
         except ValueError as e:
-            log_error(f"Erreur de validation lors de la création de l'événement : {str(e)}")
+            log_error(
+                f"Erreur de validation lors de la création de l'événement : {str(e)}"
+            )
             raise
         except Exception as e:
             log_error(f"Erreur lors de la création de l'événement : {str(e)}")
@@ -77,7 +82,7 @@ class EventService(BaseService):
             raise
 
     def update(self, event_id, new_data):
-        """ Met à jour un événement après validation des données. """
+        """Met à jour un événement après validation des données."""
         try:
             event = self.get_by_id(event_id)
             if not event:
@@ -91,28 +96,37 @@ class EventService(BaseService):
             return super().update(event_id, new_data)
 
         except ValueError as e:
-            log_error(f"Erreur de validation lors de la mise à jour de l'événement {event_id} : {str(e)}")
+            log_error(
+                f"Erreur de validation lors de la mise à jour de l'événement {event_id} : {str(e)}"
+            )
             raise
         except Exception as e:
-            log_error(f"Erreur inattendue lors de la mise à jour de l'événement {event_id} : {str(e)}")
+            log_error(
+                f"Erreur inattendue lors de la mise à jour de l'événement {event_id} : {str(e)}"
+            )
             sentry_sdk.capture_exception(e)
             raise
 
-
     def get_all_with_relations(self):
-        """ Récupère tous les événements avec leurs relations client, contrat et users. """
+        """Récupère tous les événements avec leurs relations client, contrat et users."""
         try:
             return (
                 self.repository.session.query(Event)
-                .options(joinedload(Event.client), joinedload(Event.contract), joinedload(Event.users))
+                .options(
+                    joinedload(Event.client),
+                    joinedload(Event.contract),
+                    joinedload(Event.users),
+                )
                 .all()
             )
         except Exception as e:
-            log_error(f"Erreur lors de la récupération des événements avec relations : {str(e)}")
+            log_error(
+                f"Erreur lors de la récupération des événements avec relations : {str(e)}"
+            )
             raise
 
     def assign_support(self, event, user):
-        """ Assigne un support manager à un événement. """
+        """Assigne un support manager à un événement."""
         try:
             if user in event.users:
                 event.users.remove(user)  # Supprime si déjà assigné
@@ -120,19 +134,27 @@ class EventService(BaseService):
                 event.users.append(user)  # Ajoute sinon
             self.repository.session.commit()
         except Exception as e:
-            log_error(f"Erreur lors de l'assignation du support (event_id={event.id}, user_id={user.id}): {str(e)}")
+            log_error(
+                f"Erreur lors de l'assignation du support (event_id={event.id}, user_id={user.id}): {str(e)}"
+            )
             self.repository.session.rollback()
             raise
 
     def get_by_id_with_relations(self, event_id):
-        """ Récupère un événement avec ses relations client, contrat et users. """
+        """Récupère un événement avec ses relations client, contrat et users."""
         try:
             return (
                 self.repository.session.query(Event)
-                .options(joinedload(Event.client), joinedload(Event.contract), joinedload(Event.users))
+                .options(
+                    joinedload(Event.client),
+                    joinedload(Event.contract),
+                    joinedload(Event.users),
+                )
                 .filter(Event.id == event_id)
                 .first()
             )
         except Exception as e:
-            log_error(f"Erreur lors de la récupération de l'événement ID {event_id} avec relations : {str(e)}")
+            log_error(
+                f"Erreur lors de la récupération de l'événement ID {event_id} avec relations : {str(e)}"
+            )
             raise

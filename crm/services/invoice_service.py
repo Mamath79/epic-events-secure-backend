@@ -9,17 +9,19 @@ class InvoiceService(BaseService):
         super().__init__(InvoiceRepository(session))
 
     def get_invoice_by_id(self, invoice_id):
-        """ Récupère une facture par son ID. """
+        """Récupère une facture par son ID."""
         try:
             return self.safe_execute(lambda: self.repository.get_by_id(invoice_id))
         except Exception as e:
-            error_message = f"Erreur lors de la récupération de la facture {invoice_id} : {str(e)}"
+            error_message = (
+                f"Erreur lors de la récupération de la facture {invoice_id} : {str(e)}"
+            )
             log_error(error_message)
             sentry_sdk.capture_exception(e)
             return None  # Évite un crash si erreur SQL
 
     def get_all_invoices(self):
-        """ Récupère toutes les factures. """
+        """Récupère toutes les factures."""
         try:
             return self.safe_execute(lambda: self.repository.get_all())
         except Exception as e:
@@ -29,12 +31,14 @@ class InvoiceService(BaseService):
             return []  # Retourne une liste vide si erreur (évite un crash)
 
     def create(self, data):
-        """ Crée une facture après validation. """
+        """Crée une facture après validation."""
         try:
             self.validate_inputs(data)  # Validation et nettoyage des entrées
             return self.safe_execute(lambda: self.repository.create(data))
         except ValueError as e:
-            log_error(f"Erreur de validation lors de la création de la facture : {str(e)}")
+            log_error(
+                f"Erreur de validation lors de la création de la facture : {str(e)}"
+            )
             raise
         except Exception as e:
             error_message = f"Erreur lors de la création de la facture : {str(e)}"
@@ -43,7 +47,7 @@ class InvoiceService(BaseService):
             return None
 
     def update(self, invoice_id, new_data):
-        """ Met à jour une facture existante. """
+        """Met à jour une facture existante."""
         try:
             invoice = self.repository.get_by_id(invoice_id)
             if not invoice:
@@ -52,16 +56,20 @@ class InvoiceService(BaseService):
             self.validate_inputs(new_data)  # Vérification des nouvelles valeurs
             return self.safe_execute(lambda: self.repository.update(invoice, new_data))
         except ValueError as e:
-            log_error(f"Erreur de validation lors de la mise à jour de la facture {invoice_id} : {str(e)}")
+            log_error(
+                f"Erreur de validation lors de la mise à jour de la facture {invoice_id} : {str(e)}"
+            )
             raise
         except Exception as e:
-            error_message = f"Erreur lors de la mise à jour de la facture {invoice_id} : {str(e)}"
+            error_message = (
+                f"Erreur lors de la mise à jour de la facture {invoice_id} : {str(e)}"
+            )
             log_error(error_message)
             sentry_sdk.capture_exception(e)
             return None
 
     def delete(self, invoice_id):
-        """ Supprime une facture. """
+        """Supprime une facture."""
         try:
             invoice = self.repository.get_by_id(invoice_id)
             if not invoice:
@@ -72,6 +80,8 @@ class InvoiceService(BaseService):
             log_error(f"Erreur de validation : {str(e)}")
             raise
         except Exception as e:
-            error_message = f"Erreur lors de la suppression de la facture {invoice_id} : {str(e)}"
+            error_message = (
+                f"Erreur lors de la suppression de la facture {invoice_id} : {str(e)}"
+            )
             log_error(error_message)
             sentry_sdk.capture_exception(e)

@@ -4,6 +4,7 @@ from rich.prompt import Prompt
 
 console = Console()
 
+
 class LoginView:
 
     @staticmethod
@@ -21,24 +22,26 @@ class LoginView:
         choice = console.input("[bold cyan]Sélectionnez une option > [/bold cyan]")
 
         return choice
-        
 
     @staticmethod
     def prompt_login():
         """
         demande les identifiants
         """
-
-        email = Prompt.ask("Email")
-        password = Prompt.ask("Mot de passe", password=True)
+        email = Prompt.ask("[bold cyan]Email[/bold cyan]")
+        password = Prompt.ask("[bold cyan]Mot de passe[/bold cyan]", password=True)
         return email, password
 
     @staticmethod
     def show_success_login():
-        """Affiche un message de connexion réussie"""
+        """
+        Affiche un message de connexion réussie
+        """
         console.print("[green bold]Connexion réussie ![/green bold]")
 
     @staticmethod
     def show_error_login():
-        """Affiche un message d'erreur"""
+        """
+        Affiche un message d'erreur
+        """
         console.print("[red bold]Échec de l'authentification.[/red bold]")

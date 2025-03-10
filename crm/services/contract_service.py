@@ -9,7 +9,7 @@ class ContractService(BaseService):
         super().__init__(ContractRepository(session))
 
     def get_contracts_by_client(self, client_id):
-        """ Récupère les contrats d'un client spécifique. """
+        """Récupère les contrats d'un client spécifique."""
         try:
             return self.safe_execute(
                 lambda: self.repository.session.query(self.repository.model)
@@ -23,7 +23,7 @@ class ContractService(BaseService):
             return None
 
     def create(self, data):
-        """ Création d'un contrat après validation. """
+        """Création d'un contrat après validation."""
         try:
             self.validate_inputs(data)  # Validation automatique avec BaseService
             return super().create(data)
@@ -32,10 +32,12 @@ class ContractService(BaseService):
             raise e
 
     def update(self, contract_id, new_data):
-        """ Mise à jour d'un contrat après validation. """
+        """Mise à jour d'un contrat après validation."""
         try:
             self.validate_inputs(new_data)  # Validation automatique avec BaseService
             return super().update(contract_id, new_data)
         except ValueError as e:
-            log_error(f"Validation échouée lors de la mise à jour du contrat {contract_id} : {str(e)}")
+            log_error(
+                f"Validation échouée lors de la mise à jour du contrat {contract_id} : {str(e)}"
+            )
             raise e

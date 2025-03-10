@@ -2,10 +2,10 @@ import click
 from sentry_sdk import capture_exception
 from crm.views.event_view import EventView
 from crm.services.event_service import EventService
-from crm.services.user_service import UserService
 from crm.database.base import SessionLocal
 from crm.utils.auth import requires_auth
 from crm.utils.logger import log_error, log_info
+
 
 def event_menu():
     """
@@ -28,9 +28,10 @@ def event_menu():
         elif choice == 0:
             break
         else:
-            click.echo("[red]Option invalide, veuillez réessayer.[/red]")
+            click.echo("Option invalide, veuillez réessayer.")
 
-@requires_auth(read_only=True)  # Tout le monde peut voir
+
+@requires_auth(read_only=True)
 def list_all_events(user):
     """Liste tous les événements."""
     try:
@@ -46,9 +47,10 @@ def list_all_events(user):
     except Exception as e:
         log_error(f"Erreur lors de la récupération des événements : {str(e)}")
         capture_exception(e)
-        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+        click.echo("Une erreur s'est produite. Veuillez réessayer.")
 
-@requires_auth(read_only=True)  # Tout le monde peut voir
+
+@requires_auth(read_only=True)
 def get_event_by_id(user):
     """Récupère un événement par son ID."""
     try:
@@ -61,16 +63,17 @@ def get_event_by_id(user):
             if event:
                 EventView.display_event(event)
             else:
-                click.echo("[red]Événement introuvable.[/red]")
+                click.echo("Événement introuvable.")
 
     except Exception as e:
         log_error(f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}")
         capture_exception(e)
-        click.echo("⚠️ Une erreur s'est produite. Veuillez réessayer.")
+        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+
 
 @requires_auth(required_roles=[1, 3])
 def create_event(user):
-    """ Création d'un nouvel événement avec support manager optionnel. """
+    """Création d'un nouvel événement avec support manager optionnel."""
     try:
         with SessionLocal() as session:
             event_service = EventService(session)
@@ -90,7 +93,7 @@ def create_event(user):
 
 @requires_auth(required_roles=[1, 2, 3])
 def update_event(user):
-    """ Mise à jour d'un événement existant. """
+    """Mise à jour d'un événement existant."""
     try:
         event_id = click.prompt("Entrez l'ID de l'événement à modifier", type=int)
 
@@ -118,7 +121,7 @@ def update_event(user):
 
 @requires_auth(required_roles=[1, 3])
 def delete_event(user):
-    """ Suppression d'un événement. """
+    """Suppression d'un événement."""
     try:
         event_id = click.prompt("Entrez l'ID de l'événement à supprimer", type=int)
 
@@ -130,7 +133,10 @@ def delete_event(user):
                 click.echo("Événement introuvable.")
                 return
 
-            confirm = click.confirm(f"Voulez-vous vraiment supprimer l'événement {event.id} ?", default=False)
+            confirm = click.confirm(
+                f"Voulez-vous vraiment supprimer l'événement {event.id} ?",
+                default=False,
+            )
             if confirm:
                 service.delete(event_id)
                 log_info(f"Événement {event.id} supprimé avec succès.")

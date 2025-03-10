@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from crm.database.base import Base
 
+
 class Event(Base):
     __tablename__ = "events"
 
@@ -12,17 +13,32 @@ class Event(Base):
     event_enddate = Column(DateTime, nullable=True)
     location = Column(String(70), nullable=True)
     attendees = Column(Integer, nullable=True)
-    note = Column(Text, nullable=True)  
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, nullable=True, onupdate=lambda: datetime.now(timezone.utc))
+    note = Column(Text, nullable=True)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at = Column(
+        DateTime, nullable=True, onupdate=lambda: datetime.now(timezone.utc)
+    )
     deleted_at = Column(DateTime, nullable=True)
-    clients_id = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False) 
-    contracts_id = Column(Integer, ForeignKey("contracts.id", ondelete="CASCADE", use_alter=True), nullable=False)
+    clients_id = Column(
+        Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False
+    )
+    contracts_id = Column(
+        Integer,
+        ForeignKey("contracts.id", ondelete="CASCADE", use_alter=True),
+        nullable=False,
+    )
 
     # Relations
-    client = relationship("Client", back_populates="events", passive_deletes=True) 
+    client = relationship("Client", back_populates="events", passive_deletes=True)
     contract = relationship("Contract", back_populates="event")
-    users = relationship("User", secondary="users_has_events", back_populates="events", passive_deletes=True)
+    users = relationship(
+        "User",
+        secondary="users_has_events",
+        back_populates="events",
+        passive_deletes=True,
+    )
 
     def __repr__(self):
         return f"Event(id={self.id}, title='{self.title}', from {self.event_startdate} to {self.event_enddate})"

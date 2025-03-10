@@ -42,7 +42,9 @@ class BaseService:
         """Met à jour une entité après validation des données."""
         entity = self.get_by_id(entity_id)
         if not entity:
-            log_error(f"Tentative de mise à jour d'une entité inexistante (ID: {entity_id})")
+            log_error(
+                f"Tentative de mise à jour d'une entité inexistante (ID: {entity_id})"
+            )
             return None
         self.validate_inputs(new_data)
         return self.safe_execute(self.repository.update, entity, new_data)
@@ -51,7 +53,9 @@ class BaseService:
         """Supprime une entité."""
         entity = self.get_by_id(entity_id)
         if not entity:
-            log_error(f"Tentative de suppression d'une entité inexistante (ID: {entity_id})")
+            log_error(
+                f"Tentative de suppression d'une entité inexistante (ID: {entity_id})"
+            )
             return None
         return self.safe_execute(self.repository.delete, entity)
 
@@ -67,15 +71,21 @@ class BaseService:
 
             if field == "siret":
                 if value and not validate_siret(value):
-                    raise ValueError(f"Le SIRET '{value}' est invalide (14 chiffres requis).")
+                    raise ValueError(
+                        f"Le SIRET '{value}' est invalide (14 chiffres requis)."
+                    )
 
             if field.endswith("_date"):
                 if value and not validate_date(value):
-                    raise ValueError(f"La date '{value}' est invalide (format attendu : YYYY-MM-DD).")
+                    raise ValueError(
+                        f"La date '{value}' est invalide (format attendu : YYYY-MM-DD)."
+                    )
 
             if field in ["total_amount", "payed_amount"]:
                 if value and not validate_numeric(str(value)):
-                    raise ValueError(f"Le montant '{value}' doit être un nombre valide.")
+                    raise ValueError(
+                        f"Le montant '{value}' doit être un nombre valide."
+                    )
 
             if field in ["first_name", "last_name", "title"]:
                 validate_mandatory_field(value, field)
@@ -83,5 +93,6 @@ class BaseService:
         # Vérifier la cohérence des dates (ex: event_startdate < event_enddate)
         if "event_startdate" in data and "event_enddate" in data:
             if not validate_date_order(data["event_startdate"], data["event_enddate"]):
-                raise ValueError("La date de début d'événement doit être antérieure à la date de fin.")
-
+                raise ValueError(
+                    "La date de début d'événement doit être antérieure à la date de fin."
+                )

@@ -4,10 +4,11 @@ import click
 
 console = Console()
 
+
 class HomeView:
     @staticmethod
     def show_menu():
-        console.print(Panel.fit("[bold blue]Menu Principal[/bold blue]"))
+        console.print(Panel.fit("[bold cyan]Menu Principal[/bold cyan]"))
         console.print("[1] Gérer les Clients")
         console.print("[2] Gérer les Contrats")
         console.print("[3] Gérer les Événements")
@@ -20,8 +21,8 @@ class HomeView:
 
     @staticmethod
     def show_logout():
-        click.echo('Au revoir !')
+        click.echo("[bold cyan]Au revoir ![bold cyan]")
 
     @staticmethod
     def show_invalid_option():
-        click.echo('Invalid Options !')
+        click.echo("[bold red]Invalid Options ![/bold red]")

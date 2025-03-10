@@ -20,12 +20,16 @@ else:
     print("⚠️ SENTRY_DSN non trouvé dans .env")
 
 # Configuration du logging standard Python
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def log_info(message):
     """Log un message d'information."""
     logger.info(message)
+
 
 def log_error(message, exception=None):
     """Log une erreur et l'envoie à Sentry si une exception est fournie."""

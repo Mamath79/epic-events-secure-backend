@@ -6,6 +6,7 @@ from crm.views.department_view import DepartmentView
 from crm.utils.auth import requires_auth
 from crm.utils.logger import log_info, log_error
 
+
 def department_menu():
     """Menu interactif pour la gestion des départements."""
     while True:
@@ -34,6 +35,7 @@ def department_menu():
             log_error(f"Option invalide sélectionnée : {choice}")
             click.echo("Option invalide, veuillez réessayer.")
 
+
 @requires_auth(read_only=True)
 def list_all_departments(user):
     """Affiche la liste des départements."""
@@ -41,11 +43,16 @@ def list_all_departments(user):
         service = DepartmentService(session)
         try:
             departments = service.get_all()
-            DepartmentView.display_departments(departments) if departments else click.echo("Aucun département trouvé.")
+            (
+                DepartmentView.display_departments(departments)
+                if departments
+                else click.echo("Aucun département trouvé.")
+            )
         except Exception as e:
             log_error(f"Erreur lors de la récupération des départements : {e}")
             capture_exception(e)
             click.echo("Une erreur est survenue lors de l'affichage des départements.")
+
 
 @requires_auth(read_only=True)
 def get_department_by_id(user):
@@ -55,11 +62,18 @@ def get_department_by_id(user):
         service = DepartmentService(session)
         try:
             department = service.get_by_id(department_id)
-            DepartmentView.display_department(department) if department else click.echo("Département introuvable.")
+            (
+                DepartmentView.display_department(department)
+                if department
+                else click.echo("Département introuvable.")
+            )
         except Exception as e:
-            log_error(f"Erreur lors de la récupération du département {department_id} : {e}")
+            log_error(
+                f"Erreur lors de la récupération du département {department_id} : {e}"
+            )
             capture_exception(e)
             click.echo("Une erreur est survenue.")
+
 
 @requires_auth(required_roles=[1])
 def create_department(user):
@@ -75,6 +89,7 @@ def create_department(user):
             log_error(f"Erreur lors de la création du département : {e}")
             capture_exception(e)
             click.echo("Erreur lors de la création du département.")
+
 
 @requires_auth(required_roles=[1])
 def update_department(user):
@@ -92,9 +107,12 @@ def update_department(user):
             log_info(f"Département {updated_department.name} mis à jour.")
             click.echo(f"Département {updated_department.name} mis à jour !")
         except Exception as e:
-            log_error(f"Erreur lors de la mise à jour du département {department_id} : {e}")
+            log_error(
+                f"Erreur lors de la mise à jour du département {department_id} : {e}"
+            )
             capture_exception(e)
             click.echo("Une erreur est survenue.")
+
 
 @requires_auth(required_roles=[1])
 def delete_department(user):
@@ -107,7 +125,9 @@ def delete_department(user):
             if not department:
                 click.echo("Département introuvable.")
                 return
-            confirm = click.confirm(f"Voulez-vous vraiment supprimer {department.name} ?", default=False)
+            confirm = click.confirm(
+                f"Voulez-vous vraiment supprimer {department.name} ?", default=False
+            )
             if confirm:
                 service.delete(department_id)
                 log_info(f"Département {department.name} supprimé.")
@@ -115,6 +135,8 @@ def delete_department(user):
             else:
                 click.echo("Suppression annulée.")
         except Exception as e:
-            log_error(f"Erreur lors de la suppression du département {department_id} : {e}")
+            log_error(
+                f"Erreur lors de la suppression du département {department_id} : {e}"
+            )
             capture_exception(e)
             click.echo("Une erreur est survenue.")

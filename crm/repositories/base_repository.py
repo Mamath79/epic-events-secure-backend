@@ -7,13 +7,13 @@ class BaseRepository:
         self.session = session
 
     def get_by_id(self, entity_id):
-        """ 
+        """
         Récupère une entité par son ID.
         """
         return self.session.query(self.model).get(entity_id)
 
     def get_all(self):
-        """ 
+        """
         Récupère toutes les entités.
         """
         return self.session.query(self.model).all()

@@ -6,6 +6,7 @@ from crm.services.user_service import UserService
 from crm.controllers.home_controller import HomeController
 from crm.utils.logger import log_info, log_error
 
+
 @click.command()
 def EnterCrm():
     """
@@ -36,8 +37,8 @@ def EnterCrm():
 
             else:
                 click.echo("Option invalide, veuillez réessayer.")
-        
+
         except Exception as e:
-            log_error(f"Erreur lors de l'authentification : {str(e)}")
+            log_error(f"\n[blod red]Erreur lors de l'authentification : {str(e)} [/blod red]")
             capture_exception(e)
-            click.echo("Une erreur est survenue. Veuillez réessayer.")
+            click.echo("\n[blod red]Une erreur est survenue. Veuillez réessayer.[/blod red]")
