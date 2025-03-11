@@ -8,6 +8,7 @@ from crm.utils.logger import log_error, log_info
 from crm.controllers.company_controller import company_menu
 
 
+
 def client_menu():
     """
     Menu de gestion des clients.
@@ -28,6 +29,8 @@ def client_menu():
             delete_client()
         elif choice == 6:
             company_menu()
+        elif choice == 7:
+            filter_clients()
         elif choice == 0:
             break
         else:
@@ -148,5 +151,26 @@ def delete_client(user):
                 click.echo("[bold yellow]Suppression annulée.[/bold yellow]")
     except Exception as e:
         log_error(f"[bold red]Erreur lors de la suppression du client {client_id} : {str(e)}[/bold red]")
+        capture_exception(e)
+        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+
+@requires_auth(read_only=True)
+def filter_clients(user):
+    """
+    Filtre les clients selon des critères définis par l'utilisateur.
+    """
+    try:
+        with SessionLocal() as session:
+            service = ClientService(session)
+            filters = ClientView.prompt_client_filters()
+            filtered_clients = service.get_all_filtered(filters)
+
+            if filtered_clients:
+                ClientView.display_clients(filtered_clients)
+            else:
+                click.echo("[bold yellow]Aucun client ne correspond aux critères sélectionnés.[/bold yellow]")
+
+    except Exception as e:
+        log_error(f"Erreur lors du filtrage des clients : {str(e)}")
         capture_exception(e)
         click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")

@@ -58,3 +58,30 @@ class ClientService(BaseService):
             )
             sentry_sdk.capture_exception(e)
             return []
+        
+    def get_all_filtered(self, filters):
+        """
+        Récupère les clients en appliquant des filtres dynamiques.
+        """
+        try:
+            query = self.repository.session.query(Client).options(
+                joinedload(Client.company),  # Charger la société du client
+            )
+
+            # Appliquer les filtres dynamiques
+            if "first_name" in filters:
+                query = query.filter(Client.first_name.ilike(f"%{filters['first_name']}%"))
+            if "last_name" in filters:
+                query = query.filter(Client.last_name.ilike(f"%{filters['last_name']}%"))
+            if "email" in filters:
+                query = query.filter(Client.email.ilike(f"%{filters['email']}%"))
+            if "phone_number" in filters:
+                query = query.filter(Client.phone_number.ilike(f"%{filters['phone_number']}%"))
+            if "companies_id" in filters:
+                query = query.filter(Client.companies_id == filters["companies_id"])
+
+            return query.all()
+        except Exception as e:
+            log_error(f"Erreur lors du filtrage des clients : {str(e)}")
+            sentry_sdk.capture_exception(e)
+            return []

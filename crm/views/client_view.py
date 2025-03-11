@@ -24,6 +24,7 @@ class ClientView:
         console.print("[4] Modifier un Client")
         console.print("[5] Supprimer un Client")
         console.print("[6] Gestion Client Company")
+        console.print("[7] filter les clients")
         console.print("[0] Retour au menu principal")
 
     @staticmethod
@@ -152,3 +153,45 @@ class ClientView:
                 console.print("[bold red]Option invalide, veuillez réessayer.[/bold red]")
         
         return update_data
+
+    @staticmethod
+    def prompt_client_filters():
+        """
+        Affiche un menu pour sélectionner plusieurs critères de filtrage des clients.
+        """
+        filters = {}
+
+        console.print("\n[bold cyan]Sélection des filtres pour les clients[/bold cyan]")
+        
+        filter_options = {
+            "1": "Prénom",
+            "2": "Nom de famille",
+            "3": "Email",
+            "4": "Numéro de téléphone",
+            "5": "ID de la société",
+        }
+
+        # Affichage des options
+        for key, option in filter_options.items():
+            console.print(f"[{key}] {option}")
+
+        selected_options = Prompt.ask(
+            "Entrez les numéros des filtres à appliquer (séparés par une virgule)", 
+            default="",
+        ).split(",")
+
+        for option in selected_options:
+            option = option.strip()
+            if option in filter_options:
+                if option == "1":
+                    filters["first_name"] = Prompt.ask("Entrez le prénom")
+                elif option == "2":
+                    filters["last_name"] = Prompt.ask("Entrez le nom de famille")
+                elif option == "3":
+                    filters["email"] = Prompt.ask("Entrez l'email")
+                elif option == "4":
+                    filters["phone_number"] = Prompt.ask("Entrez le numéro de téléphone")
+                elif option == "5":
+                    filters["companies_id"] = Prompt.ask("Entrez l'ID de la société")
+
+        return filters
