@@ -1,12 +1,15 @@
 from sqlalchemy.orm import joinedload
+from sqlalchemy import and_
 import sentry_sdk
 from crm.models.events_model import Event
+from crm.models.users_model import User
 from crm.repositories.event_repository import EventRepository
 from crm.repositories.client_repository import ClientRepository
 from crm.repositories.contract_repository import ContractRepository
 from crm.repositories.user_repository import UserRepository
 from crm.services.base_service import BaseService
 from crm.utils.logger import log_error, log_info
+
 
 
 class EventService(BaseService):
@@ -20,19 +23,9 @@ class EventService(BaseService):
         """
         Vérifie la validité des données avant insertion.
         """
-        self.validate_inputs(data)  # Validation et nettoyage des inputs
+        self.validate_inputs(data) 
         if not self.validate_client_contract(data["clients_id"], data["contracts_id"]):
             raise ValueError("Le client ou le contrat spécifié n'existe pas.")
-
-    def check_event_dates(self, event):
-        """
-        Vérifie que la date de fin ne peut pas être avant la date de début.
-        """
-        if event.event_startdate and event.event_enddate:
-            if event.event_enddate < event.event_startdate:
-                raise ValueError(
-                    "La date de fin ne peut pas être avant la date de début."
-                )
 
     def validate_client_contract(self, clients_id, contracts_id):
         """
@@ -72,50 +65,53 @@ class EventService(BaseService):
             sentry_sdk.capture_exception(e)
             raise
 
-    def create(self, data):
-        """
-        Crée un événement après validation des données.
-        """
+    def create(self, data, support_id=None):
+        """Crée un événement après validation des données et assigne un support si nécessaire."""
         try:
-            self.validate_event_data(data)
-            event = super().create(data)
-            self.check_event_dates(event)
+            self.validate_event_data(data)  # Valide les données
+            event = super().create(data)  # Crée l'événement
+
+            if support_id:  # Ajouter le support manager si un ID est fourni
+                support_user = self.user_repo.get_by_id(support_id)
+                if support_user:
+                    event.users.append(support_user)
+                    self.repository.session.commit()
+
             return event
         except ValueError as e:
-            log_error(
-                f"Erreur de validation lors de la création de l'événement : {str(e)}"
-            )
+            log_error(f"Erreur de validation lors de la création de l'événement : {str(e)}")
             raise
         except Exception as e:
             log_error(f"Erreur lors de la création de l'événement : {str(e)}")
             sentry_sdk.capture_exception(e)
             raise
 
+
     def update(self, event_id, new_data):
         """
-        Met à jour un événement après validation des données.
+        Met à jour un événement et gère l'affectation des supports.
         """
         try:
             event = self.get_by_id(event_id)
             if not event:
-                raise ValueError(f"Événement ID {event_id} introuvable.")
+                raise ValueError(f"L'événement {event_id} n'existe pas.")
 
-            # Compléter les données manquantes avec les valeurs actuelles
-            new_data.setdefault("clients_id", event.clients_id)
-            new_data.setdefault("contracts_id", event.contracts_id)
+            support_id = new_data.pop("support_id", None)  # Récupère l'ID du support
 
-            self.validate_event_data(new_data)
-            return super().update(event_id, new_data)
+            # Mise à jour des autres champs
+            for key, value in new_data.items():
+                setattr(event, key, value)
 
-        except ValueError as e:
-            log_error(
-                f"Erreur de validation lors de la mise à jour de l'événement {event_id} : {str(e)}"
-            )
-            raise
+            # Gère l'affectation du support avec assign_support()
+            if support_id is not None:
+                support_user = self.user_repo.get_by_id(support_id)
+                self.assign_support(event, support_user)
+
+            self.repository.session.commit()  # Sauvegarde des modifications
+
+            return event
         except Exception as e:
-            log_error(
-                f"Erreur inattendue lors de la mise à jour de l'événement {event_id} : {str(e)}"
-            )
+            log_error(f"Erreur lors de la mise à jour de l'événement {event_id} : {str(e)}")
             sentry_sdk.capture_exception(e)
             raise
 
@@ -139,23 +135,6 @@ class EventService(BaseService):
             raise
 
 
-    def assign_support(self, event, user):
-        """
-        Assigne un support manager à un événement.
-        """
-        try:
-            if user in event.users:
-                event.users.remove(user)  # Supprime si déjà assigné
-            else:
-                event.users.append(user)  # Ajoute sinon
-            self.repository.session.commit()
-        except Exception as e:
-            log_error(
-                f"Erreur lors de l'assignation du support (event_id={event.id}, user_id={user.id}): {str(e)}"
-            )
-            self.repository.session.rollback()
-            raise
-
     def get_by_id_with_relations(self, event_id):
         """
         Récupère un événement avec ses relations client, contrat et users.
@@ -176,3 +155,32 @@ class EventService(BaseService):
                 f"Erreur lors de la récupération de l'événement ID {event_id} avec relations : {str(e)}"
             )
             raise
+
+
+    def get_all_filtered(self, filters):
+        """
+        Récupère les événements en appliquant des filtres dynamiques.
+        """
+        try:
+            query = self.repository.session.query(Event).options(
+                joinedload(Event.client),
+                joinedload(Event.contract),
+                joinedload(Event.users),
+            )
+
+            if "event_startdate" in filters:
+                query = query.filter(Event.event_startdate >= filters["event_startdate"])
+            if "event_enddate" in filters:
+                query = query.filter(Event.event_enddate <= filters["event_enddate"])
+            if "clients_id" in filters:
+                query = query.filter(Event.clients_id == filters["clients_id"])
+            if "contracts_id" in filters:
+                query = query.filter(Event.contracts_id == filters["contracts_id"])
+            if "support_id" in filters:
+                query = query.join(Event.users).filter(User.id == filters["support_id"])
+
+            return query.all()
+        except Exception as e:
+            log_error(f"Erreur lors du filtrage des événements : {str(e)}")
+            sentry_sdk.capture_exception(e)
+            return []

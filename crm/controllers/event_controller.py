@@ -25,6 +25,9 @@ def event_menu():
             update_event()
         elif choice == 5:
             delete_event()
+        if choice == 6:
+            log_info("Filtrage des événements")
+            list_filtered_events()
         elif choice == 0:
             break
         else:
@@ -77,8 +80,8 @@ def create_event(user):
     try:
         with SessionLocal() as session:
             event_service = EventService(session)
-            event_data = EventView.prompt_event_data()
-            new_event = event_service.create(event_data)
+            data, support_id =EventView.prompt_event_data()
+            new_event = event_service.create(data, support_id=support_id)
 
             log_info(f"Événement {new_event.id} créé avec succès.")
             click.echo(f"Événement {new_event.id} ajouté avec succès !")
@@ -148,3 +151,24 @@ def delete_event(user):
         log_error(f"Erreur lors de la suppression de l'événement {event_id} : {str(e)}")
         capture_exception(e)
         click.echo("Une erreur s'est produite. Veuillez réessayer.")
+
+@requires_auth(read_only=True)
+def list_filtered_events(user):
+    """
+    Affiche la liste des événements en appliquant des filtres sélectionnés par l'utilisateur.
+    """
+    session = SessionLocal()
+    service = EventService(session)
+    try:
+        filters = EventView.prompt_event_filters()  # Demande les critères de filtrage
+        filtered_events = service.get_all_filtered(filters)
+        if filtered_events:
+            EventView.display_events(filtered_events)
+        else:
+            click.echo("\n[bold yellow]Aucun événement trouvé avec ces filtres.[/bold yellow]")
+    except Exception as e:
+        log_error(f"Erreur lors du filtrage des événements : {str(e)}")
+        capture_exception(e)
+        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+    finally:
+        session.close()
