@@ -65,7 +65,7 @@ def get_user_by_id(user):
     Affiche les détails d'un utilisateur par ID.
     """
 
-    user_id = click.prompt("\n[bold cyan]Entrez l'ID de l'utilisateur[/bold cyan]", type=int)
+    user_id = click.prompt("\n[cyan bold]Entrez l'ID de l'utilisateur[/cyan bold]", type=int)
 
     session = SessionLocal()
     service = UserService(session)

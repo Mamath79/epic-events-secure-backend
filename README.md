@@ -12,7 +12,7 @@ Epic Events CRM est une application de gestion de la relation client (CRM) déve
 
 1. Clonez le dépôt :
 ```bash
-git clone [url-du-depot]
+git clone https://github.com/Mamath79/OC_P12_D-veloppez-une-architecture-back-end-securisee-avec-Python-et-SQL.git
 cd epic_events
 ```
 

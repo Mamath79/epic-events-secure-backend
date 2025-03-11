@@ -3,6 +3,7 @@ from rich.table import Table
 from rich.prompt import Prompt
 from rich.panel import Panel
 import click
+from datetime import datetime
 
 console = Console()
 
@@ -11,9 +12,11 @@ class EventView:
 
     @staticmethod
     def show_menu():
-        """Affiche le menu de gestion des événements."""
+        """
+        Affiche le menu de gestion des événements.
+        """
         console.print("\n[bold cyan]╭──────────────────╮[/bold cyan]")
-        console.print("[bold cyan]│ Menu Événements │[/bold cyan]")
+        console.print("[bold cyan]│ Menu Événements  │[/bold cyan]")
         console.print("[bold cyan]╰──────────────────╯[/bold cyan]")
         console.print("\n[1] Lister tous les événements")
         console.print("[2] Voir un événement par ID")
@@ -24,20 +27,31 @@ class EventView:
 
     @staticmethod
     def display_events(events):
-        """Affiche tous les événements sous forme de tableau."""
+        """
+        Affiche tous les événements sous forme de tableau.
+        """
         table = Table(title="\n[bold cyan]Liste des Événements[/bold cyan]\n")
 
         table.add_column("ID", justify="center", style="cyan", no_wrap=True)
-        table.add_column("Titre", style="green")
-        table.add_column("Début", style="yellow")
-        table.add_column("Fin", style="yellow")
-        table.add_column("Lieu", style="blue")
+        table.add_column("Titre")
+        table.add_column("Début")
+        table.add_column("Fin")
+        table.add_column("Lieu")
         table.add_column("Participants", justify="center")
-        table.add_column("Contrat ID", justify="center")
-        table.add_column("Client ID", justify="center")
-        table.add_column("Support", style="magenta")
+        table.add_column("Contrat")
+        table.add_column("Client")
+        table.add_column("Support")
 
+        
         for event in events:
+            client_info = (
+                f"{event.client.id} ({event.client.first_name} {event.client.last_name}) - {event.client.company.title}"
+                if event.client and event.client.company
+                else f"{event.client.id} ({event.client.first_name} {event.client.last_name}) - Non assigné"
+                if event.client
+                else "Aucun client"
+)
+
             table.add_row(
                 str(event.id),
                 event.title,
@@ -46,7 +60,7 @@ class EventView:
                 event.location if event.location else "N/A",
                 str(event.attendees) if event.attendees else "N/A",
                 str(event.contracts_id),
-                str(event.clients_id),
+                client_info,
                 ", ".join(f"{user.id} ({user.username})" for user in event.users) if event.users else "Non assigné",
             )
 
@@ -60,21 +74,32 @@ class EventView:
 
     @staticmethod
     def display_event(event):
-        """Affiche un événement sous forme de fiche détaillée."""
+        """
+        Affiche un événement sous forme de fiche détaillée.
+        """
+
+        def format_date(date_value):
+            """Convertit un datetime en string formatée, sinon retourne 'N/A'."""
+            if isinstance(date_value, datetime):
+                return date_value.strftime('%Y-%m-%d')
+            return "N/A" if not date_value else str(date_value)
+    
         event_details = f"""
-        [cyan bold]Fiche Événement[/cyan bold]
+        [cyan bold]Fiche Événement: {event.title}, id:{event.id}[/cyan bold]
 
         ─────────────────
 
-        [cyan bold]ID:[/cyan bold] {event.id}
-        [green bold]Titre:[/green bold] {event.title}
-        [yellow bold]Début:[/yellow bold] {event.event_startdate.strftime('%Y-%m-%d') if event.event_startdate else 'N/A'}
-        [yellow bold]Fin:[/yellow bold] {event.event_enddate.strftime('%Y-%m-%d') if event.event_enddate else 'N/A'}
-        [blue bold]Lieu:[/blue bold] {event.location if event.location else 'N/A'}
+        [cyan bold]Début:[/cyan bold] {format_date(event.event_startdate)}
+        [cyan bold]Fin:[/cyan bold] {format_date(event.event_enddate)}
+        [cyan bold]Lieu:[/cyan bold] {event.location if event.location else 'N/A'}
         [cyan bold]Participants:[/cyan bold] {event.attendees if event.attendees else 'N/A'}
-        [white bold]Contrat ID:[/white bold] {event.contracts_id}
-        [white bold]Client ID:[/white bold] {event.clients_id}
-        [magenta bold]Support:[/magenta bold] {", ".join(f"ID {user.id} - {user.username}" for user in event.users) if event.users else 'Non assigné'}
+        [cyan bold]Contrat ID:[/cyan bold] {event.contracts_id}
+        [cyan bold]Client:[/cyan bold] {event.client.last_name} {event.client.first_name} (id:{event.clients_id})- {event.client.company.title if event.client.company else 'Non assigné'}(id: {event.client.companies_id if event.client.companies_id else 'N/A'})
+        [cyan bold]Note:[/cyan bold] {event.note}
+        [cyan bold]Créé le:[/cyan bold] {format_date(event.created_at)}
+        [cyan bold]Modifié le:[/cyan bold] {format_date(event.updated_at) if event.updated_at else 'N/A'}
+        [cyan bold]Supprimé le:[/cyan bold] {format_date(event.deleted_at) if event.deleted_at else 'Non supprimé'}
+        [cyan bold]Support:[/cyan bold] {", ".join(f"ID {user.id} - {user.username}" for user in event.users) if event.users else 'Non assigné'}
         """
 
         console.print(
@@ -87,7 +112,9 @@ class EventView:
 
     @staticmethod
     def prompt_event_data():
-        """Demande les informations pour créer un événement."""
+        """
+        Demande les informations pour créer un événement.
+        """
         console.print("\n[bold cyan]Création d'un nouvel événement[/bold cyan]")
         title = Prompt.ask("Nom de l'événement")
         event_startdate = Prompt.ask("Date de début (YYYY-MM-DD)")
@@ -123,7 +150,9 @@ class EventView:
 
     @staticmethod
     def prompt_event_update(event):
-        """Permet de modifier un événement existant."""
+        """
+        Permet de modifier un événement existant.
+        """
         console.print("\n[bold cyan]Mise à jour d'un événement[/bold cyan]")
         update_data = {}
 
@@ -172,6 +201,8 @@ class EventView:
 
     @staticmethod
     def display_message(message, msg_type="info"):
-        """Affiche un message avec couleur adaptée."""
+        """
+        Affiche un message avec couleur adaptée.
+        """
         colors = {"success": "green", "error": "red", "info": "cyan"}
         console.print(f"[{colors.get(msg_type, 'white')}] {message} [/{colors.get(msg_type, 'white')}]")

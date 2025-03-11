@@ -36,14 +36,16 @@ class UserView:
         table.add_column("Email")
         table.add_column("Département")
 
+
         for user in users:
+            departement_infos = f"{user.department.title} - (id:{user.departments_id})" if user.department else "Non assigné"
             table.add_row(
                 str(user.id),
                 user.last_name,
                 user.first_name,
                 user.username,
                 user.email,
-                str(user.departments_id),
+                departement_infos,
             )
 
         # Calcul de la largeur de la table
@@ -70,7 +72,7 @@ class UserView:
         [cyan bold]Nom:[/cyan bold] {user.last_name} {user.first_name}
         [cyan bold]Email:[/cyan bold] {user.email}
         [cyan bold]Nom d'utilisateur:[/cyan bold] {user.username}
-        [cyan bold]Département:[/cyan bold] {user.departments_id}
+        [cyan bold]Département:[/cyan bold] {user.department_id}
 
 
         """

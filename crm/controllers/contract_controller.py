@@ -64,7 +64,7 @@ def get_contract_by_id(user):
     """
     Affiche les détails d'un contrat par ID.
     """
-    contract_id = click.prompt("\n[bold cyan]Entrez l'ID du contrat[/bold cyan]", type=int)
+    contract_id = click.prompt("\n[cyan bold]Entrez l'ID du contrat[/cyan bold]", type=int)
 
     session = SessionLocal()
     service = ContractService(session)

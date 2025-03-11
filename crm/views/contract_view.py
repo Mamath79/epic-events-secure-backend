@@ -27,15 +27,17 @@ class ContractView:
         table = Table(title="\n[bold cyan]Liste des contrats[/bold cyan]\n")
 
         table.add_column("ID", justify="center", style="cyan", no_wrap=True)
-        table.add_column("Client ID", style="green", justify="center", no_wrap=True)
-        table.add_column("Montant Total (€)", style="yellow", justify="right", no_wrap=True)
-        table.add_column("Montant Payé (€)", style="white", justify="right", no_wrap=True)
-        table.add_column("Statut", style="magenta", justify="center", no_wrap=True)
+        table.add_column("Client ID")
+        table.add_column("Client Name")
+        table.add_column("Montant Total (€)")
+        table.add_column("Montant Payé (€)")
+        table.add_column("Statut")
 
         for contract in contracts:
             table.add_row(
                 str(contract.id),
                 str(contract.clients_id),
+                f"{contract.client.first_name} {contract.client.last_name} , {contract.client.company.title}",
                 f"{contract.total_amount}€",
                 f"{contract.payed_amount}€",
                 ContractView.get_status_label(contract.contract_status_id),
@@ -53,15 +55,14 @@ class ContractView:
     def display_contract(contract):
         """Affiche les détails d'un contrat sous forme de fiche détaillée."""
         contract_details = f"""
-        [cyan bold]Fiche Contrat[/cyan bold]
+        [cyan bold]Fiche Contrat ID: {contract.id}[/cyan bold]
 
         ─────────────────
 
-        [cyan bold]ID:[/cyan bold] {contract.id}
-        [green bold]Client ID:[/green bold] {contract.clients_id}
-        [yellow bold]Montant Total:[/yellow bold] {contract.total_amount}€
-        [white bold]Montant Payé:[/white bold] {contract.payed_amount}€
-        [magenta bold]Statut:[/magenta bold] {ContractView.get_status_label(contract.contract_status_id)}
+        [cyan bold]Client Name:[/cyan bold] {contract.client.first_name} {contract.client.last_name},{contract.client.company.title}, id: {contract.clients_id}
+        [cyan bold]Montant Total:[/cyan bold] {contract.total_amount}€
+        [cyan bold]Montant Payé:[/cyan bold] {contract.payed_amount}€
+        [cyan bold]Statut:[/cyan bold] {ContractView.get_status_label(contract.contract_status_id)}
         """
 
         console.print(

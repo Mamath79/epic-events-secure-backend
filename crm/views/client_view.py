@@ -5,8 +5,8 @@ from rich.panel import Panel
 import click
 from crm.controllers.company_controller import get_companies_list, create_company
 
-console = Console()
 
+console = Console()
 
 class ClientView:
 
@@ -37,12 +37,14 @@ class ClientView:
         table.add_column("Prénom")
         table.add_column("Email")
         table.add_column("Téléphone")
-        table.add_column("Entreprise")
+        table.add_column("Entreprise_id")
+        table.add_column("Entreprise_title")
         table.add_column("Créé le")
         table.add_column("Modifié le")
         table.add_column("Supprimé le")
 
         for client in clients:
+            company_name = client.company.title if client.company else "Non assigné"
             table.add_row(
                 str(client.id),
                 client.last_name,
@@ -50,6 +52,7 @@ class ClientView:
                 client.email,
                 client.phone_number or "N/A",
                 str(client.companies_id) if client.companies_id else "N/A",
+                company_name,
                 client.creation_date.strftime("%d/%m/%Y %H:%M") if client.creation_date else "N/A",
                 client.updated_date.strftime("%d/%m/%Y %H:%M") if client.updated_date else "N/A",
                 client.deleted_at.strftime("%d/%m/%Y %H:%M") if client.deleted_at else "Non supprimé",
@@ -64,18 +67,22 @@ class ClientView:
         """
         Affiche un client sous forme de fiche détaillée.
         """
+        company_name = client.company.title if client.company else "Non assigné"
+
         client_details = f"""
-        [cyan bold]Fiche Client[/cyan bold]
-        ─────────────────
-        [cyan bold]ID:[/cyan bold] {client.id}
+        [cyan bold]Fiche Client ID:{client.id}[/cyan bold]
+
+        ──────────────────
+
         [cyan bold]Nom:[/cyan bold] {client.last_name} {client.first_name}
         [cyan bold]Email:[/cyan bold] {client.email}
         [cyan bold]Téléphone:[/cyan bold] {client.phone_number or "N/A"}
-        [cyan bold]Entreprise:[/cyan bold] {client.companies_id or "N/A"}
+        [cyan bold]Nom Entreprise:[/cyan bold] {company_name}, id: {client.companies_id if client.companies_id else "N/A"}
         [cyan bold]Créé le:[/cyan bold] {client.creation_date.strftime('%d/%m/%Y %H:%M') if client.creation_date else "N/A"}
         [cyan bold]Modifié le:[/cyan bold] {client.updated_date.strftime('%d/%m/%Y %H:%M') if client.updated_date else "N/A"}
         [cyan bold]Supprimé le:[/cyan bold] {client.deleted_at.strftime('%d/%m/%Y %H:%M') if client.deleted_at else "Non supprimé"}
         """
+
         console.print(
             Panel.fit(
                 client_details,
@@ -86,7 +93,9 @@ class ClientView:
 
     @staticmethod
     def prompt_client_data():
-        """Demande les informations pour créer un client."""
+        """
+        Demande les informations pour créer un client.
+        """
         console.print("\n[bold cyan]Création d'un nouveau client[/bold cyan]")
         last_name = Prompt.ask("Nom").strip()
         first_name = Prompt.ask("Prénom").strip()
