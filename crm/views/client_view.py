@@ -8,6 +8,7 @@ from crm.controllers.company_controller import get_companies_list, create_compan
 
 console = Console()
 
+
 class ClientView:
 
     @staticmethod
@@ -54,9 +55,21 @@ class ClientView:
                 client.phone_number or "N/A",
                 str(client.companies_id) if client.companies_id else "N/A",
                 company_name,
-                client.creation_date.strftime("%d/%m/%Y %H:%M") if client.creation_date else "N/A",
-                client.updated_date.strftime("%d/%m/%Y %H:%M") if client.updated_date else "N/A",
-                client.deleted_at.strftime("%d/%m/%Y %H:%M") if client.deleted_at else "Non supprimé",
+                (
+                    client.creation_date.strftime("%d/%m/%Y %H:%M")
+                    if client.creation_date
+                    else "N/A"
+                ),
+                (
+                    client.updated_date.strftime("%d/%m/%Y %H:%M")
+                    if client.updated_date
+                    else "N/A"
+                ),
+                (
+                    client.deleted_at.strftime("%d/%m/%Y %H:%M")
+                    if client.deleted_at
+                    else "Non supprimé"
+                ),
             )
 
         console.print("\n" + "═" * console.measure(table).maximum, style="bold white")
@@ -125,7 +138,7 @@ class ClientView:
         Permet de choisir un ou plusieurs paramètres à modifier sans tout ressaisir.
         """
         update_data = {}
-        
+
         while True:
             console.print("\n[bold cyan]Mise à jour d'un client[/bold cyan]")
             console.print("[1] Modifier le prénom")
@@ -138,20 +151,30 @@ class ClientView:
             choice = click.prompt("Entrez le numéro du champ à modifier", type=int)
 
             if choice == 1:
-                update_data["first_name"] = Prompt.ask("Nouveau prénom", default=client.first_name)
+                update_data["first_name"] = Prompt.ask(
+                    "Nouveau prénom", default=client.first_name
+                )
             elif choice == 2:
-                update_data["last_name"] = Prompt.ask("Nouveau nom", default=client.last_name)
+                update_data["last_name"] = Prompt.ask(
+                    "Nouveau nom", default=client.last_name
+                )
             elif choice == 3:
                 update_data["email"] = Prompt.ask("Nouvel email", default=client.email)
             elif choice == 4:
-                update_data["phone_number"] = Prompt.ask("Nouveau téléphone", default=client.phone_number or "")
+                update_data["phone_number"] = Prompt.ask(
+                    "Nouveau téléphone", default=client.phone_number or ""
+                )
             elif choice == 5:
-                update_data["companies_id"] = Prompt.ask("Nouvel ID d'entreprise", default=str(client.companies_id or ""))
+                update_data["companies_id"] = Prompt.ask(
+                    "Nouvel ID d'entreprise", default=str(client.companies_id or "")
+                )
             elif choice == 0:
                 break
             else:
-                console.print("[bold red]Option invalide, veuillez réessayer.[/bold red]")
-        
+                console.print(
+                    "[bold red]Option invalide, veuillez réessayer.[/bold red]"
+                )
+
         return update_data
 
     @staticmethod
@@ -162,7 +185,7 @@ class ClientView:
         filters = {}
 
         console.print("\n[bold cyan]Sélection des filtres pour les clients[/bold cyan]")
-        
+
         filter_options = {
             "1": "Prénom",
             "2": "Nom de famille",
@@ -176,7 +199,7 @@ class ClientView:
             console.print(f"[{key}] {option}")
 
         selected_options = Prompt.ask(
-            "Entrez les numéros des filtres à appliquer (séparés par une virgule)", 
+            "Entrez les numéros des filtres à appliquer (séparés par une virgule)",
             default="",
         ).split(",")
 
@@ -190,7 +213,9 @@ class ClientView:
                 elif option == "3":
                     filters["email"] = Prompt.ask("Entrez l'email")
                 elif option == "4":
-                    filters["phone_number"] = Prompt.ask("Entrez le numéro de téléphone")
+                    filters["phone_number"] = Prompt.ask(
+                        "Entrez le numéro de téléphone"
+                    )
                 elif option == "5":
                     filters["companies_id"] = Prompt.ask("Entrez l'ID de la société")
 

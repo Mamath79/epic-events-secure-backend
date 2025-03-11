@@ -69,7 +69,9 @@ def get_event_by_id(user):
                 click.echo("Événement introuvable.")
 
     except Exception as e:
-        log_error(f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}")
+        log_error(
+            f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}"
+        )
         capture_exception(e)
         click.echo("Une erreur s'est produite. Veuillez réessayer.")
 
@@ -80,7 +82,7 @@ def create_event(user):
     try:
         with SessionLocal() as session:
             event_service = EventService(session)
-            data, support_id =EventView.prompt_event_data()
+            data, support_id = EventView.prompt_event_data()
             new_event = event_service.create(data, support_id=support_id)
 
             log_info(f"Événement {new_event.id} créé avec succès.")
@@ -152,6 +154,7 @@ def delete_event(user):
         capture_exception(e)
         click.echo("Une erreur s'est produite. Veuillez réessayer.")
 
+
 @requires_auth(read_only=True)
 def list_filtered_events(user):
     """
@@ -165,7 +168,9 @@ def list_filtered_events(user):
         if filtered_events:
             EventView.display_events(filtered_events)
         else:
-            click.echo("\n[bold yellow]Aucun événement trouvé avec ces filtres.[/bold yellow]")
+            click.echo(
+                "\n[bold yellow]Aucun événement trouvé avec ces filtres.[/bold yellow]"
+            )
     except Exception as e:
         log_error(f"Erreur lors du filtrage des événements : {str(e)}")
         capture_exception(e)

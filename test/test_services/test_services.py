@@ -3,7 +3,9 @@ from crm.models import Client, Contract, Event, User, ContractStatus, Department
 
 
 def test_client_service_create(client_service):
-    client = client_service.create({"first_name": "Alice", "last_name": "Smith", "email": "alice@email.com"})
+    client = client_service.create(
+        {"first_name": "Alice", "last_name": "Smith", "email": "alice@email.com"}
+    )
     assert client.id is not None
 
 
@@ -21,9 +23,9 @@ def test_contract_service_create(contract_service, test_session):
     contract_data = {
         "clients_id": client.id,
         "total_amount": 1000,
-        "contract_status_id": status.id  # Assure-toi que la clé correspond à celle attendue dans ton modèle
+        "contract_status_id": status.id,  # Assure-toi que la clé correspond à celle attendue dans ton modèle
     }
-    
+
     contract = contract_service.create(contract_data)
     assert contract.id is not None
 
@@ -33,7 +35,9 @@ def test_event_service_create(event_service, test_session):
     test_session.add(client)
     test_session.commit()
 
-    contract_status = test_session.query(ContractStatus).filter_by(status="Signé").first()
+    contract_status = (
+        test_session.query(ContractStatus).filter_by(status="Signé").first()
+    )
     if not contract_status:
         contract_status = ContractStatus(status="Signé")  # Ajout d'un statut valide
         test_session.add(contract_status)
@@ -42,7 +46,7 @@ def test_event_service_create(event_service, test_session):
     contract = Contract(
         clients_id=client.id,
         total_amount=5000,
-        contract_status_id=contract_status.id  # Associer un statut valide
+        contract_status_id=contract_status.id,  # Associer un statut valide
     )
     test_session.add(contract)
     test_session.commit()
@@ -50,7 +54,7 @@ def test_event_service_create(event_service, test_session):
     event_data = {
         "title": "Conference",
         "clients_id": client.id,
-        "contracts_id": contract.id  # Correction ici, il manquait cette clé
+        "contracts_id": contract.id,  # Correction ici, il manquait cette clé
     }
 
     event = event_service.create(event_data)
@@ -68,11 +72,13 @@ def test_user_service_create(user_service, test_session):
         "username": "testuser",
         "email": "testuser@gmail.com",
         "password": "hashedpassword",
-        "departments_id": department.id
+        "departments_id": department.id,
     }
 
     # Vérifier si l'utilisateur existe déjà et le supprimer
-    existing_user = test_session.query(User).filter_by(email="testuser@gmail.com").first()
+    existing_user = (
+        test_session.query(User).filter_by(email="testuser@gmail.com").first()
+    )
     if existing_user:
         test_session.delete(existing_user)
         test_session.commit()

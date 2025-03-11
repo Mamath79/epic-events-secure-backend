@@ -52,9 +52,13 @@ def list_all_users(user):
         else:
             click.echo("\n[bold yellow]Aucun utilisateur trouvé.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération des utilisateurs : {e} [/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération des utilisateurs : {e} [/bold red]"
+        )
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue lors de l'affichage des utilisateurs.[/bold red]")
+        click.echo(
+            "\n[bold red]Une erreur est survenue lors de l'affichage des utilisateurs.[/bold red]"
+        )
     finally:
         session.close()
 
@@ -65,7 +69,9 @@ def get_user_by_id(user):
     Affiche les détails d'un utilisateur par ID.
     """
 
-    user_id = click.prompt("\n[cyan bold]Entrez l'ID de l'utilisateur[/cyan bold]", type=int)
+    user_id = click.prompt(
+        "\n[cyan bold]Entrez l'ID de l'utilisateur[/cyan bold]", type=int
+    )
 
     session = SessionLocal()
     service = UserService(session)
@@ -76,7 +82,9 @@ def get_user_by_id(user):
         else:
             click.echo("Utilisateur introuvable.")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération de l'utilisateur {user_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération de l'utilisateur {user_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -101,9 +109,13 @@ def create_user(user):
             f"[bold green]Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès ![/bold green]"
         )
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la création de l'utilisateur : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la création de l'utilisateur : {e}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("\n[bold red]Erreur lors de la création de l'utilisateur.[/bold red]")
+        click.echo(
+            "\n[bold red]Erreur lors de la création de l'utilisateur.[/bold red]"
+        )
     finally:
         session.close()
 
@@ -134,7 +146,9 @@ def update_user(user):
         )
 
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la mise à jour de l'utilisateur {user_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la mise à jour de l'utilisateur {user_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -162,12 +176,16 @@ def delete_user(user):
         )
         if confirm:
             service.delete(user_id)
-            log_info(f"[bold green]Utilisateur {user.first_name} {user.last_name} supprimé.[/bold green]")
+            log_info(
+                f"[bold green]Utilisateur {user.first_name} {user.last_name} supprimé.[/bold green]"
+            )
             click.echo("[bold green]Utilisateur supprimé avec succès.[/bold green]")
         else:
             click.echo("[bold yellow]Suppression annulée.[/bold yellow]")
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la suppression de l'utilisateur {user_id} : {e}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la suppression de l'utilisateur {user_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("[bold red]Une erreur est survenue.[/bold red]")
     finally:

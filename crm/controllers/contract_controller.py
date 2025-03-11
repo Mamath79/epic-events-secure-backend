@@ -30,6 +30,9 @@ def contract_menu():
         elif choice == 5:
             log_info("Suppression d'un contrat")
             delete_contract()
+        elif choice == 6:
+            log_info("Sconsultation par filtres")
+            filter_contracts()
         elif choice == 0:
             log_info("Retour au menu principal")
             break
@@ -52,9 +55,13 @@ def list_all_contracts(user):
         else:
             click.echo("\n[bold yellow]Aucun contrat trouvé.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération des contrats : {e} [/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération des contrats : {e} [/bold red]"
+        )
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue lors de l'affichage des contrats.[/bold red]")
+        click.echo(
+            "\n[bold red]Une erreur est survenue lors de l'affichage des contrats.[/bold red]"
+        )
     finally:
         session.close()
 
@@ -64,7 +71,9 @@ def get_contract_by_id(user):
     """
     Affiche les détails d'un contrat par ID.
     """
-    contract_id = click.prompt("\n[cyan bold]Entrez l'ID du contrat[/cyan bold]", type=int)
+    contract_id = click.prompt(
+        "\n[cyan bold]Entrez l'ID du contrat[/cyan bold]", type=int
+    )
 
     session = SessionLocal()
     service = ContractService(session)
@@ -75,7 +84,9 @@ def get_contract_by_id(user):
         else:
             click.echo("\n[bold yellow]Contrat introuvable.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération du contrat {contract_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération du contrat {contract_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -95,10 +106,16 @@ def create_contract(user):
     service = ContractService(session)
     try:
         new_contract = service.create(data)
-        log_info(f"[bold green]Contrat {new_contract.id} créé avec succès ![/bold green]")
-        click.echo(f"[bold green]Contrat {new_contract.id} ajouté avec succès ![/bold green]")
+        log_info(
+            f"[bold green]Contrat {new_contract.id} créé avec succès ![/bold green]"
+        )
+        click.echo(
+            f"[bold green]Contrat {new_contract.id} ajouté avec succès ![/bold green]"
+        )
     except ValueError as e:
-        click.echo(f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]")  # Affichage clair des erreurs utilisateur
+        click.echo(
+            f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]"
+        )  # Affichage clair des erreurs utilisateur
     except Exception as e:
         log_error(f"\n[bold red]Erreur lors de la création du contrat : {e}[/bold red]")
         capture_exception(e)
@@ -112,7 +129,9 @@ def update_contract(user):
     """
     Met à jour un contrat existant avec un menu interactif.
     """
-    contract_id = click.prompt("\n[bold cyan]Entrez l'ID du contrat à modifier[/bold cyan]", type=int)
+    contract_id = click.prompt(
+        "\n[bold cyan]Entrez l'ID du contrat à modifier[/bold cyan]", type=int
+    )
 
     session = SessionLocal()
     service = ContractService(session)
@@ -127,13 +146,21 @@ def update_contract(user):
             return
 
         updated_contract = service.update(contract_id, update_data)
-        log_info(f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]")
-        click.echo(f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]")
+        log_info(
+            f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]"
+        )
+        click.echo(
+            f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]"
+        )
 
     except ValueError as e:
-        click.echo(f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]")  # Affichage clair des erreurs utilisateur
+        click.echo(
+            f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]"
+        )  # Affichage clair des erreurs utilisateur
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la mise à jour du contrat {contract_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la mise à jour du contrat {contract_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -145,7 +172,9 @@ def delete_contract(user):
     """
     Supprime un contrat avec confirmation.
     """
-    contract_id = click.prompt("\n[bold cyan]Entrez l'ID du contrat à supprimer[/bold cyan]", type=int)
+    contract_id = click.prompt(
+        "\n[bold cyan]Entrez l'ID du contrat à supprimer[/bold cyan]", type=int
+    )
 
     session = SessionLocal()
     service = ContractService(session)
@@ -161,13 +190,46 @@ def delete_contract(user):
         )
         if confirm:
             service.delete(contract_id)
-            log_info(f"[bold green]Contrat {contract.id} supprimé avec succès.[/bold green]")
+            log_info(
+                f"[bold green]Contrat {contract.id} supprimé avec succès.[/bold green]"
+            )
             click.echo("\n[bold green]Contrat supprimé avec succès.[/bold green]")
         else:
             click.echo("\n[bold yellow]Suppression annulée.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la suppression du contrat {contract_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la suppression du contrat {contract_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
         session.close()
+
+
+@requires_auth(read_only=True)
+def filter_contracts(user):
+    """
+    Filtre les contrats en fonction des critères choisis par l'utilisateur.
+    """
+    try:
+        filters = (
+            ContractView.prompt_contract_filters()
+        )  # Demande les critères de filtrage
+        with SessionLocal() as session:
+            service = ContractService(session)
+            contracts = service.get_all_filtered(filters)  # Applique les filtres
+            (
+                ContractView.display_contracts(contracts)
+                if contracts
+                else click.echo(
+                    "[bold yellow]Aucun contrat correspondant trouvé.[/bold yellow]"
+                )
+            )
+    except Exception as e:
+        log_error(
+            f"[bold red]Erreur lors du filtrage des contrats : {str(e)}[/bold red]"
+        )
+        capture_exception(e)
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )

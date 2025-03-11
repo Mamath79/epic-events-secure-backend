@@ -74,7 +74,9 @@ class DepartmentView:
     @staticmethod
     def prompt_department_update(department):
         """Demande les informations à modifier pour un département."""
-        console.print(f"\n[bold cyan]Modification du département ID {department.id}[/bold cyan]")
+        console.print(
+            f"\n[bold cyan]Modification du département ID {department.id}[/bold cyan]"
+        )
 
         new_name = Prompt.ask(
             f"Nom actuel : [green]{department.name}[/green] ➝ Nouveau nom",

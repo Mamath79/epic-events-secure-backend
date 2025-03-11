@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
    </head>
    <body>
-      <div id="masthead" class="sev-2"></div>
+      <div id="masthead" class="sev-1"></div>
       <div id="page">
          <p id="srclink">
             <a title="View full annotated source"
@@ -50,11 +50,29 @@ window.addEventListener('DOMContentLoaded', function () {
          <ul id="index">
          
          <li>
+            <a data-code="F401">
+               <span class="count sev-1">
+                  1
+               </span>
+               <strong>F401:</strong> 'rich.prompt.Confirm' imported but unused
+               
+            </a>
+            <ul class="details">
+            <li>
+               
+               <a href="crm.views.event_view.source.html#l4">
+                  <tt><i>4</i> <span class="kn">from</span><span class="w"> </span><span class="nn">rich.prompt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Confirm</span></tt>
+               </a>
+            </li>
+            </ul>
+         </li>
+         
+         <li>
             <a data-code="E501">
                <span class="count sev-2">
                   2
                </span>
-               <strong>E501:</strong> line too long (150 > 120 characters)
+               <strong>E501:</strong> line too long (144 > 120 characters)
                
                   (and 1 similar)
                
@@ -62,35 +80,17 @@ window.addEventListener('DOMContentLoaded', function () {
             <ul class="details">
             <li>
                
-               <p>Line too long (150 > 120 characters):</p>
+               <p>Line too long (144 > 120 characters):</p>
                
-               <a href="crm.views.event_view.source.html#l77">
-                  <tt><i>77</i> <span class="s2">        [magenta bold]Support:[/magenta bold] </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;Non assigné&#39;</span><span class="si">}</span></tt>
+               <a href="crm.views.event_view.source.html#l118">
+                  <tt><i>118</i> <span class="s2">        [cyan bold]Support:[/cyan bold] </span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;Non assigné&#39;</span><span class="si">}</span></tt>
                </a>
             </li><li>
                
-               <p>Line too long (121 > 120 characters):</p>
+               <p>Line too long (177 > 120 characters):</p>
                
-               <a href="crm.views.event_view.source.html#l158">
-                  <tt><i>158</i>                 <span class="n">new_value</span> <span class="o">=</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> actuel : [cyan]</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">[/cyan] ➝ Nouveau </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></tt>
-               </a>
-            </li>
-            </ul>
-         </li>
-         
-         <li>
-            <a data-code="W293">
-               <span class="count sev-2">
-                  1
-               </span>
-               <strong>W293:</strong> blank line contains whitespace
-               
-            </a>
-            <ul class="details">
-            <li>
-               
-               <a href="crm.views.event_view.source.html#l98">
-                  <tt><i>98</i>         </tt>
+               <a href="crm.views.event_view.source.html#l233">
+                  <tt><i>233</i>                     <span class="sa">f</span><span class="s2">&quot;ID du Support actuel : [cyan]</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="si">}</span><span class="s1">)&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">users</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="si">}</span><span class="s2">[/cyan] ➝ Nouveau ID du Support&quot;</span><span class="p">,</span></tt>
                </a>
             </li>
             </ul>

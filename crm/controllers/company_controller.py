@@ -52,9 +52,13 @@ def get_companies_list(user):
         else:
             click.echo("\n[bold yellow]Aucune entreprise trouvée.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération des entreprises : {e} [/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération des entreprises : {e} [/bold red]"
+        )
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue lors de l'affichage des entreprises.[/bold red]")
+        click.echo(
+            "\n[bold red]Une erreur est survenue lors de l'affichage des entreprises.[/bold red]"
+        )
     finally:
         session.close()
 
@@ -64,7 +68,9 @@ def get_company_by_id(user):
     """
     Affiche les détails d'une entreprise par ID.
     """
-    company_id = click.prompt("\n[bold cyan]Entrez l'ID de l'entreprise[/bold cyan]", type=int)
+    company_id = click.prompt(
+        "\n[bold cyan]Entrez l'ID de l'entreprise[/bold cyan]", type=int
+    )
 
     session = SessionLocal()
     service = CompanyService(session)
@@ -75,7 +81,9 @@ def get_company_by_id(user):
         else:
             click.echo("\n[bold yellow]Entreprise introuvable.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la récupération de l'entreprise {company_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la récupération de l'entreprise {company_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -95,10 +103,16 @@ def create_company(user):
     service = CompanyService(session)
     try:
         new_company = service.create(company_data)
-        log_info(f"[bold green]Entreprise '{new_company.title}' créée avec succès ![/bold green]")
-        click.echo(f"[bold green]Entreprise '{new_company.title}' ajoutée avec succès ![/bold green]")
+        log_info(
+            f"[bold green]Entreprise '{new_company.title}' créée avec succès ![/bold green]"
+        )
+        click.echo(
+            f"[bold green]Entreprise '{new_company.title}' ajoutée avec succès ![/bold green]"
+        )
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la création de l'entreprise : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la création de l'entreprise : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Erreur lors de la création de l'entreprise.[/bold red]")
     finally:
@@ -110,7 +124,9 @@ def update_company(user):
     """
     Met à jour une entreprise existante avec un menu interactif.
     """
-    company_id = click.prompt("\n[bold cyan]Entrez l'ID de l'entreprise à modifier[/bold cyan]", type=int)
+    company_id = click.prompt(
+        "\n[bold cyan]Entrez l'ID de l'entreprise à modifier[/bold cyan]", type=int
+    )
 
     session = SessionLocal()
     service = CompanyService(session)
@@ -125,11 +141,17 @@ def update_company(user):
             return
 
         updated_company = service.update(company_id, updated_data)
-        log_info(f"[bold green]Entreprise '{updated_company.title}' mise à jour ![/bold green]")
-        click.echo(f"[bold green]Entreprise '{updated_company.title}' mise à jour avec succès ![/bold green]")
+        log_info(
+            f"[bold green]Entreprise '{updated_company.title}' mise à jour ![/bold green]"
+        )
+        click.echo(
+            f"[bold green]Entreprise '{updated_company.title}' mise à jour avec succès ![/bold green]"
+        )
 
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la mise à jour de l'entreprise {company_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la mise à jour de l'entreprise {company_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:
@@ -141,7 +163,9 @@ def delete_company(user):
     """
     Supprime une entreprise avec confirmation.
     """
-    company_id = click.prompt("\n[bold cyan]Entrez l'ID de l'entreprise à supprimer[/bold cyan]", type=int)
+    company_id = click.prompt(
+        "\n[bold cyan]Entrez l'ID de l'entreprise à supprimer[/bold cyan]", type=int
+    )
 
     session = SessionLocal()
     service = CompanyService(session)
@@ -157,12 +181,16 @@ def delete_company(user):
         )
         if confirm:
             service.delete(company_id)
-            log_info(f"[bold green]Entreprise '{company.title}' supprimée avec succès.[/bold green]")
+            log_info(
+                f"[bold green]Entreprise '{company.title}' supprimée avec succès.[/bold green]"
+            )
             click.echo("\n[bold green]Entreprise supprimée avec succès.[/bold green]")
         else:
             click.echo("\n[bold yellow]Suppression annulée.[/bold yellow]")
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la suppression de l'entreprise {company_id} : {e}[/bold red]")
+        log_error(
+            f"\n[bold red]Erreur lors de la suppression de l'entreprise {company_id} : {e}[/bold red]"
+        )
         capture_exception(e)
         click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
     finally:

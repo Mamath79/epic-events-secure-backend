@@ -9,7 +9,7 @@ def user():
     Fixture pour créer un utilisateur de test.
     """
     u = User(username="test_user", email="test@example.com")
-    u.password="MonSuperMotDePasse123!"
+    u.password = "MonSuperMotDePasse123!"
     return u
 
 

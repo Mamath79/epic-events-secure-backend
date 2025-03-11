@@ -45,26 +45,39 @@ class EventView:
         table.add_column("Client")
         table.add_column("Support")
 
-        
         for event in events:
             client_info = (
                 f"{event.client.id} ({event.client.first_name} {event.client.last_name}) - {event.client.company.title}"
                 if event.client and event.client.company
-                else f"{event.client.id} ({event.client.first_name} {event.client.last_name}) - Non assigné"
-                if event.client
-                else "Aucun client"
-)
+                else (
+                    f"{event.client.id} ({event.client.first_name} {event.client.last_name}) - Non assigné"
+                    if event.client
+                    else "Aucun client"
+                )
+            )
 
             table.add_row(
                 str(event.id),
                 event.title,
-                event.event_startdate.strftime("%Y-%m-%d") if event.event_startdate else "N/A",
-                event.event_enddate.strftime("%Y-%m-%d") if event.event_enddate else "N/A",
+                (
+                    event.event_startdate.strftime("%Y-%m-%d")
+                    if event.event_startdate
+                    else "N/A"
+                ),
+                (
+                    event.event_enddate.strftime("%Y-%m-%d")
+                    if event.event_enddate
+                    else "N/A"
+                ),
                 event.location if event.location else "N/A",
                 str(event.attendees) if event.attendees else "N/A",
                 str(event.contracts_id),
                 client_info,
-                ", ".join(f"{user.id} ({user.username})" for user in event.users) if event.users else "Non assigné",
+                (
+                    ", ".join(f"{user.id} ({user.username})" for user in event.users)
+                    if event.users
+                    else "Non assigné"
+                ),
             )
 
         # Calcul de la largeur de la table
@@ -84,9 +97,9 @@ class EventView:
         def format_date(date_value):
             """Convertit un datetime en string formatée, sinon retourne 'N/A'."""
             if isinstance(date_value, datetime):
-                return date_value.strftime('%Y-%m-%d')
+                return date_value.strftime("%Y-%m-%d")
             return "N/A" if not date_value else str(date_value)
-    
+
         event_details = f"""
         [cyan bold]Fiche Événement: {event.title}, id:{event.id}[/cyan bold]
 
@@ -122,32 +135,44 @@ class EventView:
         title = Prompt.ask("Nom de l'événement").strip()
 
         event_startdate = Prompt.ask("Date de début (YYYY-MM-DD)", default="").strip()
-        event_startdate = event_startdate if event_startdate else None  
+        event_startdate = event_startdate if event_startdate else None
 
         event_enddate = Prompt.ask("Date de fin (YYYY-MM-DD)", default="").strip()
-        event_enddate = event_enddate if event_enddate else None  
+        event_enddate = event_enddate if event_enddate else None
 
-        location = Prompt.ask("Lieu de l'événement (laisser vide si inconnu)", default="").strip()
-        location = location if location else None 
+        location = Prompt.ask(
+            "Lieu de l'événement (laisser vide si inconnu)", default=""
+        ).strip()
+        location = location if location else None
 
-        attendees = Prompt.ask("Nombre de participants (laisser vide si inconnu)", default="")
-        attendees = int(attendees) if attendees.isdigit() else None  
+        attendees = Prompt.ask(
+            "Nombre de participants (laisser vide si inconnu)", default=""
+        )
+        attendees = int(attendees) if attendees.isdigit() else None
 
         note = Prompt.ask("Commentaires", default="").strip()
-        note = note if note else None  
+        note = note if note else None
 
         clients_id = Prompt.ask("ID du Client").strip()
         while not clients_id.isdigit():
-            clients_id = Prompt.ask("[red]L'ID du Client doit être un nombre valide.[/red]").strip()
+            clients_id = Prompt.ask(
+                "[red]L'ID du Client doit être un nombre valide.[/red]"
+            ).strip()
         clients_id = int(clients_id)
 
         contracts_id = Prompt.ask("ID du Contrat").strip()
         while not contracts_id.isdigit():
-            contracts_id = Prompt.ask("[red]L'ID du Contrat doit être un nombre valide.[/red]").strip()
+            contracts_id = Prompt.ask(
+                "[red]L'ID du Contrat doit être un nombre valide.[/red]"
+            ).strip()
         contracts_id = int(contracts_id)
 
-        support_id = Prompt.ask("ID du Support (laisser vide si aucun)", default="").strip()
-        support_id = int(support_id) if support_id.isdigit() else None  # ✅ Convertit en int ou None
+        support_id = Prompt.ask(
+            "ID du Support (laisser vide si aucun)", default=""
+        ).strip()
+        support_id = (
+            int(support_id) if support_id.isdigit() else None
+        )  # ✅ Convertit en int ou None
 
         return {
             "title": title,
@@ -196,12 +221,21 @@ class EventView:
 
             if choice in fields:
                 field, label = fields[choice]
-                new_value = Prompt.ask(f"{label} actuel : [cyan]{getattr(event, field, 'N/A')}[/cyan] ➝ Nouveau {label}")
-                update_data[field] = int(new_value) if new_value.isdigit() else new_value
+                new_value = Prompt.ask(
+                    f"{label} actuel : [cyan]{getattr(event, field, 'N/A')}[/cyan] ➝ Nouveau {label}"
+                )
+                update_data[field] = (
+                    int(new_value) if new_value.isdigit() else new_value
+                )
 
             elif choice == 9:
-                new_support_id = Prompt.ask(f"ID du Support actuel : [cyan]{', '.join(f'{user.id} ({user.username})' for user in event.users) if event.users else 'N/A'}[/cyan] ➝ Nouveau ID du Support", default="")
-                update_data["support_id"] = int(new_support_id) if new_support_id.isdigit() else None
+                new_support_id = Prompt.ask(
+                    f"ID du Support actuel : [cyan]{', '.join(f'{user.id} ({user.username})' for user in event.users) if event.users else 'N/A'}[/cyan] ➝ Nouveau ID du Support",
+                    default="",
+                )
+                update_data["support_id"] = (
+                    int(new_support_id) if new_support_id.isdigit() else None
+                )
 
             elif choice == 0:
                 if update_data:
@@ -221,7 +255,9 @@ class EventView:
         Affiche un message avec couleur adaptée.
         """
         colors = {"success": "green", "error": "red", "info": "cyan"}
-        console.print(f"[{colors.get(msg_type, 'white')}] {message} [/{colors.get(msg_type, 'white')}]")
+        console.print(
+            f"[{colors.get(msg_type, 'white')}] {message} [/{colors.get(msg_type, 'white')}]"
+        )
 
     @staticmethod
     def prompt_event_filters():
@@ -230,8 +266,10 @@ class EventView:
         """
         filters = {}
 
-        console.print("\n[bold cyan]Sélection des filtres pour les événements[/bold cyan]")
-        
+        console.print(
+            "\n[bold cyan]Sélection des filtres pour les événements[/bold cyan]"
+        )
+
         filter_options = {
             "1": "Date de début",
             "2": "Date de fin",
@@ -245,7 +283,7 @@ class EventView:
             console.print(f"[{key}] {option}")
 
         selected_options = Prompt.ask(
-            "Entrez les numéros des filtres à appliquer (séparés par une virgule)", 
+            "Entrez les numéros des filtres à appliquer (séparés par une virgule)",
             default="",
         ).split(",")
 
@@ -253,9 +291,13 @@ class EventView:
             option = option.strip()
             if option in filter_options:
                 if option == "1":
-                    filters["event_startdate"] = Prompt.ask("Entrez la date de début (YYYY-MM-DD)")
+                    filters["event_startdate"] = Prompt.ask(
+                        "Entrez la date de début (YYYY-MM-DD)"
+                    )
                 elif option == "2":
-                    filters["event_enddate"] = Prompt.ask("Entrez la date de fin (YYYY-MM-DD)")
+                    filters["event_enddate"] = Prompt.ask(
+                        "Entrez la date de fin (YYYY-MM-DD)"
+                    )
                 elif option == "3":
                     filters["clients_id"] = Prompt.ask("Entrez l'ID du client")
                 elif option == "4":

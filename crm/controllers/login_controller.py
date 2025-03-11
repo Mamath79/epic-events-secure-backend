@@ -39,6 +39,10 @@ def EnterCrm():
                 click.echo("Option invalide, veuillez réessayer.")
 
         except Exception as e:
-            log_error(f"\n[blod red]Erreur lors de l'authentification : {str(e)} [/blod red]")
+            log_error(
+                f"\n[blod red]Erreur lors de l'authentification : {str(e)} [/blod red]"
+            )
             capture_exception(e)
-            click.echo("\n[blod red]Une erreur est survenue. Veuillez réessayer.[/blod red]")
+            click.echo(
+                "\n[blod red]Une erreur est survenue. Veuillez réessayer.[/blod red]"
+            )

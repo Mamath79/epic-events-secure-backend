@@ -78,16 +78,18 @@ class InvoiceView:
         console.print("\n[bold cyan]Création d'une nouvelle facture[/bold cyan]")
         contracts_id = Prompt.ask("ID du Contrat")
         while not contracts_id.isdigit():
-            contracts_id = Prompt.ask("[red]L'ID du Contrat doit être un nombre valide.[/red]")
+            contracts_id = Prompt.ask(
+                "[red]L'ID du Contrat doit être un nombre valide.[/red]"
+            )
         contracts_id = int(contracts_id)
 
         total_amount = Prompt.ask("Montant total (€)")
-        while not total_amount.replace('.', '', 1).isdigit():
+        while not total_amount.replace(".", "", 1).isdigit():
             total_amount = Prompt.ask("[red]Veuillez entrer un montant valide.[/red]")
         total_amount = float(total_amount)
 
         payed_amount = Prompt.ask("Montant payé (€)", default="0")
-        while not payed_amount.replace('.', '', 1).isdigit():
+        while not payed_amount.replace(".", "", 1).isdigit():
             payed_amount = Prompt.ask("[red]Veuillez entrer un montant valide.[/red]")
         payed_amount = float(payed_amount)
 
@@ -95,7 +97,9 @@ class InvoiceView:
         console.print("[1] En attente de paiement")
         console.print("[2] Payée")
         console.print("[3] Annulée")
-        status = Prompt.ask("Choisissez un ID de statut", choices=["1", "2", "3"], default="1")
+        status = Prompt.ask(
+            "Choisissez un ID de statut", choices=["1", "2", "3"], default="1"
+        )
         status = int(status)
 
         return {
@@ -123,16 +127,25 @@ class InvoiceView:
                 new_value = Prompt.ask(
                     f"Montant total actuel : [yellow]{invoice.total_amount}€[/yellow] ➝ Nouveau montant (€)"
                 )
-                update_data["total_amount"] = float(new_value) if new_value.replace('.', '', 1).isdigit() else invoice.total_amount
+                update_data["total_amount"] = (
+                    float(new_value)
+                    if new_value.replace(".", "", 1).isdigit()
+                    else invoice.total_amount
+                )
 
             elif choice == 2:
                 new_value = Prompt.ask(
                     f"Montant payé actuel : [white]{invoice.payed_amount}€[/white] ➝ Nouveau montant (€)"
                 )
-                update_data["payed_amount"] = float(new_value) if new_value.replace('.', '', 1).isdigit() else invoice.payed_amount
+                update_data["payed_amount"] = (
+                    float(new_value)
+                    if new_value.replace(".", "", 1).isdigit()
+                    else invoice.payed_amount
+                )
 
             elif choice == 3:
-                console.print("\n[bold cyan]Sélectionnez le nouveau statut :[/bold cyan]")
+                console.print(
+                    "\n[bold cyan]Sélectionnez le nouveau statut :[/bold cyan]"
+                )
                 console.print("[1] En attente de paiement")
                 console.print("[2] Payée")
-               

@@ -8,7 +8,6 @@ from crm.utils.logger import log_error, log_info
 from crm.controllers.company_controller import company_menu
 
 
-
 def client_menu():
     """
     Menu de gestion des clients.
@@ -52,9 +51,13 @@ def list_all_clients(user):
                 else click.echo("[bold yellow]Aucun client trouvé.[/bold yellow]")
             )
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la récupération des clients : {str(e)}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la récupération des clients : {str(e)}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )
 
 
 @requires_auth(read_only=True)
@@ -63,7 +66,9 @@ def get_client_by_id(user):
     Récupère un client par son ID.
     """
     try:
-        client_id = click.prompt("[bold cyan]Entrez l'ID du client[/bold cyan]", type=int)
+        client_id = click.prompt(
+            "[bold cyan]Entrez l'ID du client[/bold cyan]", type=int
+        )
         with SessionLocal() as session:
             service = ClientService(session)
             client = service.get_by_id(client_id)
@@ -73,9 +78,13 @@ def get_client_by_id(user):
                 else click.echo("[bold yellow]Client introuvable.[/bold yellow]")
             )
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la récupération du client {client_id} : {str(e)}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la récupération du client {client_id} : {str(e)}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )
 
 
 @requires_auth(required_roles=[1, 3])
@@ -95,9 +104,13 @@ def create_client(user):
                 f"[bold green]Client {new_client.first_name} {new_client.last_name} ajouté avec succès ![/bold green]"
             )
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la création du client : {str(e)}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la création du client : {str(e)}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )
 
 
 @requires_auth(required_roles=[1, 3])
@@ -122,9 +135,13 @@ def update_client(user):
                 f"[bold green]Client {updated_client.first_name} {updated_client.last_name} mis à jour ![/bold green]"
             )
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la mise à jour du client {client_id} : {str(e)}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la mise à jour du client {client_id} : {str(e)}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )
 
 
 @requires_auth(required_roles=[1])
@@ -133,7 +150,9 @@ def delete_client(user):
     Suppression d'un client.
     """
     try:
-        client_id = click.prompt("\n[bold cyan]Entrez l'ID du client à supprimer[/bod cyan]", type=int)
+        client_id = click.prompt(
+            "\n[bold cyan]Entrez l'ID du client à supprimer[/bod cyan]", type=int
+        )
         with SessionLocal() as session:
             service = ClientService(session)
             client = service.get_by_id(client_id)
@@ -145,14 +164,21 @@ def delete_client(user):
                 default=False,
             ):
                 service.delete(client_id)
-                log_info(f"[bold green]Client {client.first_name} {client.last_name} supprimé.[/bold green]")
+                log_info(
+                    f"[bold green]Client {client.first_name} {client.last_name} supprimé.[/bold green]"
+                )
                 click.echo("[bold green]Client supprimé avec succès.[/bold green]")
             else:
                 click.echo("[bold yellow]Suppression annulée.[/bold yellow]")
     except Exception as e:
-        log_error(f"[bold red]Erreur lors de la suppression du client {client_id} : {str(e)}[/bold red]")
+        log_error(
+            f"[bold red]Erreur lors de la suppression du client {client_id} : {str(e)}[/bold red]"
+        )
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )
+
 
 @requires_auth(read_only=True)
 def filter_clients(user):
@@ -168,9 +194,13 @@ def filter_clients(user):
             if filtered_clients:
                 ClientView.display_clients(filtered_clients)
             else:
-                click.echo("[bold yellow]Aucun client ne correspond aux critères sélectionnés.[/bold yellow]")
+                click.echo(
+                    "[bold yellow]Aucun client ne correspond aux critères sélectionnés.[/bold yellow]"
+                )
 
     except Exception as e:
         log_error(f"Erreur lors du filtrage des clients : {str(e)}")
         capture_exception(e)
-        click.echo("[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]")
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )

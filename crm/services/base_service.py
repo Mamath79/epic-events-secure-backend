@@ -63,7 +63,7 @@ class BaseService:
         """Valide et nettoie les entrées utilisateur avant insertion en base."""
         for field, value in data.items():
             if value is None:
-                continue  
+                continue
 
             if isinstance(value, str):
                 data[field] = clean_text(value)  # Nettoyage de la chaîne
@@ -96,7 +96,7 @@ class BaseService:
         # Vérifier la cohérence des dates uniquement si les deux existent
         if "event_startdate" in data and "event_enddate" in data:
             start_date, end_date = data["event_startdate"], data["event_enddate"]
-            if start_date and end_date:  
+            if start_date and end_date:
                 if not validate_date_order(start_date, end_date, allow_same=True):
                     raise ValueError(
                         "La date de début d'événement doit être antérieure ou égale à la date de fin."

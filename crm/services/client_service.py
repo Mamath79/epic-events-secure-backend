@@ -39,7 +39,9 @@ class ClientService(BaseService):
                 .first()
             )
         except Exception as e:
-            log_error(f"Erreur lors de la récupération du client {client_id} : {str(e)}")
+            log_error(
+                f"Erreur lors de la récupération du client {client_id} : {str(e)}"
+            )
             sentry_sdk.capture_exception(e)
             return None
 
@@ -58,7 +60,7 @@ class ClientService(BaseService):
             )
             sentry_sdk.capture_exception(e)
             return []
-        
+
     def get_all_filtered(self, filters):
         """
         Récupère les clients en appliquant des filtres dynamiques.
@@ -70,13 +72,19 @@ class ClientService(BaseService):
 
             # Appliquer les filtres dynamiques
             if "first_name" in filters:
-                query = query.filter(Client.first_name.ilike(f"%{filters['first_name']}%"))
+                query = query.filter(
+                    Client.first_name.ilike(f"%{filters['first_name']}%")
+                )
             if "last_name" in filters:
-                query = query.filter(Client.last_name.ilike(f"%{filters['last_name']}%"))
+                query = query.filter(
+                    Client.last_name.ilike(f"%{filters['last_name']}%")
+                )
             if "email" in filters:
                 query = query.filter(Client.email.ilike(f"%{filters['email']}%"))
             if "phone_number" in filters:
-                query = query.filter(Client.phone_number.ilike(f"%{filters['phone_number']}%"))
+                query = query.filter(
+                    Client.phone_number.ilike(f"%{filters['phone_number']}%")
+                )
             if "companies_id" in filters:
                 query = query.filter(Client.companies_id == filters["companies_id"])
 

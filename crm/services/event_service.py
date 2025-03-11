@@ -11,7 +11,6 @@ from crm.services.base_service import BaseService
 from crm.utils.logger import log_error, log_info
 
 
-
 class EventService(BaseService):
     def __init__(self, session):
         super().__init__(EventRepository(session))
@@ -23,7 +22,7 @@ class EventService(BaseService):
         """
         Vérifie la validité des données avant insertion.
         """
-        self.validate_inputs(data) 
+        self.validate_inputs(data)
         if not self.validate_client_contract(data["clients_id"], data["contracts_id"]):
             raise ValueError("Le client ou le contrat spécifié n'existe pas.")
 
@@ -79,13 +78,14 @@ class EventService(BaseService):
 
             return event
         except ValueError as e:
-            log_error(f"Erreur de validation lors de la création de l'événement : {str(e)}")
+            log_error(
+                f"Erreur de validation lors de la création de l'événement : {str(e)}"
+            )
             raise
         except Exception as e:
             log_error(f"Erreur lors de la création de l'événement : {str(e)}")
             sentry_sdk.capture_exception(e)
             raise
-
 
     def update(self, event_id, new_data):
         """
@@ -111,7 +111,9 @@ class EventService(BaseService):
 
             return event
         except Exception as e:
-            log_error(f"Erreur lors de la mise à jour de l'événement {event_id} : {str(e)}")
+            log_error(
+                f"Erreur lors de la mise à jour de l'événement {event_id} : {str(e)}"
+            )
             sentry_sdk.capture_exception(e)
             raise
 
@@ -123,17 +125,20 @@ class EventService(BaseService):
             return (
                 self.repository.session.query(Event)
                 .options(
-                    joinedload(Event.client),   # Associe le client lié à l'événement
+                    joinedload(Event.client),  # Associe le client lié à l'événement
                     joinedload(Event.contract),  # Associe le contrat lié à l'événement
-                    joinedload(Event.users)  # Charge les utilisateurs (supports) assignés
+                    joinedload(
+                        Event.users
+                    ),  # Charge les utilisateurs (supports) assignés
                 )
                 .all()
             )
         except Exception as e:
-            log_error(f"Erreur lors de la récupération des événements avec relations : {str(e)}")
+            log_error(
+                f"Erreur lors de la récupération des événements avec relations : {str(e)}"
+            )
             sentry_sdk.capture_exception(e)
             raise
-
 
     def get_by_id_with_relations(self, event_id):
         """
@@ -156,7 +161,6 @@ class EventService(BaseService):
             )
             raise
 
-
     def get_all_filtered(self, filters):
         """
         Récupère les événements en appliquant des filtres dynamiques.
@@ -169,7 +173,9 @@ class EventService(BaseService):
             )
 
             if "event_startdate" in filters:
-                query = query.filter(Event.event_startdate >= filters["event_startdate"])
+                query = query.filter(
+                    Event.event_startdate >= filters["event_startdate"]
+                )
             if "event_enddate" in filters:
                 query = query.filter(Event.event_enddate <= filters["event_enddate"])
             if "clients_id" in filters:

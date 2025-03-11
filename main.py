@@ -8,6 +8,7 @@ def cli():
     """Application CLI Epic Events"""
     pass
 
+
 cli.add_command(EnterCrm)
 
 if __name__ == "__main__":

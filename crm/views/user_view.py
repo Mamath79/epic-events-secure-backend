@@ -36,9 +36,12 @@ class UserView:
         table.add_column("Email")
         table.add_column("Département")
 
-
         for user in users:
-            departement_infos = f"{user.department.title} - (id:{user.departments_id})" if user.department else "Non assigné"
+            departement_infos = (
+                f"{user.department.title} - (id:{user.departments_id})"
+                if user.department
+                else "Non assigné"
+            )
             table.add_row(
                 str(user.id),
                 user.last_name,
@@ -61,7 +64,6 @@ class UserView:
         """
         Affiche un utilisateur sous forme de fiche détaillée.
         """
-
 
         user_details = f"""
         [cyan bold]Fiche Utilisateur[/cyan bold]
@@ -95,8 +97,12 @@ class UserView:
         first_name = Prompt.ask("[bold cyan]Prénom[/bold cyan]").strip()
         email = Prompt.ask("[bold cyan]Email[/bold cyan]").strip()
         username = Prompt.ask("[bold cyan]Nom d'utilisateur[/bold cyan]").strip()
-        password = Prompt.ask("[bold cyan]Mot de passe[/bold cyan]", password=True).strip()
-        departments_id = Prompt.ask("[bold cyan]ID du département[/bold cyan]", default="1").strip()
+        password = Prompt.ask(
+            "[bold cyan]Mot de passe[/bold cyan]", password=True
+        ).strip()
+        departments_id = Prompt.ask(
+            "[bold cyan]ID du département[/bold cyan]", default="1"
+        ).strip()
 
         return {
             "last_name": last_name,
@@ -146,6 +152,8 @@ class UserView:
             elif choice == 0:
                 break
             else:
-                console.print("[bold red]Option invalide, veuillez réessayer[bold red].")
+                console.print(
+                    "[bold red]Option invalide, veuillez réessayer[bold red]."
+                )
 
         return update_data

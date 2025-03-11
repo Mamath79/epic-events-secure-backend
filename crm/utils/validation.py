@@ -41,4 +41,4 @@ def validate_date_order(start_date: str, end_date: str, allow_same=False) -> boo
     """Vérifie que la date de début est antérieure à la date de fin."""
     if not validate_date(start_date) or not validate_date(end_date):
         return False
-    return  start_date < end_date or (allow_same and start_date == end_date)
+    return start_date < end_date or (allow_same and start_date == end_date)

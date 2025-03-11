@@ -10,6 +10,6 @@ def test_connection_database():
         with engine.connect() as connection:
             assert connection is not None
             print("Success !")
-        
+
     except Exception as e:
-        pytest.fail(f'La connexion a echoué.')
+        pytest.fail(f"La connexion a echoué.")

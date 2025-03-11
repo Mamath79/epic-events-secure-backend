@@ -84,7 +84,9 @@ class CompanyView:
     @staticmethod
     def prompt_company_update(company):
         """Permet de modifier une entreprise existante."""
-        console.print(f"\n[bold cyan]Modification de l'entreprise {company.title}[/bold cyan]")
+        console.print(
+            f"\n[bold cyan]Modification de l'entreprise {company.title}[/bold cyan]"
+        )
 
         update_data = {}
 

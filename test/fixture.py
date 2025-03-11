@@ -36,37 +36,46 @@ def test_session():
 def client_repo(test_session):
     return ClientRepository(test_session)
 
+
 @pytest.fixture
 def contract_repo(test_session):
     return ContractRepository(test_session)
+
 
 @pytest.fixture
 def event_repo(test_session):
     return EventRepository(test_session)
 
+
 @pytest.fixture
 def user_repo(test_session):
     return UserRepository(test_session)
+
 
 @pytest.fixture
 def contract_status_repo(test_session):
     return ContractStatusRepository(test_session)
 
+
 @pytest.fixture
 def client_service(test_session):
     return ClientService(test_session)
+
 
 @pytest.fixture
 def contract_service(test_session):
     return ContractService(test_session)
 
+
 @pytest.fixture
 def event_service(test_session):
     return EventService(test_session)
 
+
 @pytest.fixture
 def user_service(test_session):
     return UserService(test_session)
+
 
 @pytest.fixture
 def contract_status_service(test_session):
