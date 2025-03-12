@@ -102,68 +102,92 @@ Le projet utilise MySQL comme système de gestion de base de données. Un schém
 ### Navigation dans l'application
 
 #### Menu Principal
-![Menu Principal](screenshots/menu_principal.png)
 Le menu principal vous permet d'accéder aux différentes fonctionnalités de l'application :
-- Gestion des clients
-- Gestion des contrats
-- Gestion des événements
-- Gestion des utilisateurs
+
+- **Gestion des clients**
+- **Gestion des contrats**
+- **Gestion des événements**
+- **Gestion des utilisateurs**
+- **Filtrage avancé**
 
 #### Gestion des Clients
-![Liste des Clients](screenshots/liste_clients.png)
 La vue liste des clients affiche un tableau avec les informations principales :
-- Nom de l'entreprise
-- Contact principal
-- Email
-- Téléphone
-- Date de création
+- **Nom de l'entreprise**
+- **Contact principal**
+- **Email**
+- **Téléphone**
+- **Date de création**
+- **Contrats associés**
 
-![Fiche Client](screenshots/fiche_client.png)
-La fiche client détaillée permet de :
-- Voir toutes les informations du client
-- Modifier les informations
-- Voir l'historique des contrats
-- Ajouter des notes
+#####  **Filtrage dynamique**
+Possibilité de **filtrer** la liste des clients selon plusieurs critères :
+- Nom
+- Prénom
+- Email
+- ID de l'entreprise
 
 #### Gestion des Contrats
-![Liste des Contrats](screenshots/liste_contrats.png)
 Le tableau des contrats affiche :
-- Référence du contrat
-- Client associé
-- Montant total
-- Montant restant à payer
-- Statut du contrat
+- **Référence du contrat**
+- **Client associé**
+- **Montant total**
+- **Montant restant à payer**
+- **Statut du contrat**
+- **Commercial responsable**
 
-![Fiche Contrat](screenshots/fiche_contrat.png)
-La fiche contrat détaillée permet de :
-- Voir tous les détails du contrat
-- Gérer les paiements
-- Voir les événements associés
-- Modifier le statut
+#####  **Filtrage avancé**
+- Statut du contrat (signé, en attente, annulé)
+- ID du client
+- ID du commercial
+- Montant minimum/maximum
+
+#### Gestion des Événements
+Chaque événement est lié à :
+- Un client
+- Un contrat
+- Un support manager (si assigné)
+
+#####  **Filtrage dynamique**
+- Date de début / fin
+- ID du client
+- ID du contrat
+- **Filtrage des événements sans support affecté**
+
+#### Gestion des Utilisateurs
+Les utilisateurs sont affichés avec :
+- **Nom et prénom**
+- **Email**
+- **Nom d’utilisateur**
+- **Département**
+
+#####  **Filtrage par rôles**
+- Nom
+- Prénom
+- Email
+- ID du département
 
 ### Fonctionnalités Principales
 
-#### Création d'un nouveau client
+####  **Création d'un nouveau client**
 1. Accédez au menu "Clients"
-2. Cliquez sur "Nouveau Client"
-3. Remplissez le formulaire
-4. Validez la création
+2. Sélectionnez **"Créer un client"**
+3. Remplissez le formulaire (nom, prénom, entreprise, etc.)
+4. Confirmez l’ajout
 
-#### Création d'un nouveau contrat
+#### **Création d'un contrat**
 1. Accédez à la fiche client
-2. Cliquez sur "Nouveau Contrat"
-3. Remplissez les informations du contrat
-4. Validez la création
+2. Sélectionnez **"Créer un contrat"**
+3. Saisissez le montant total, montant payé, statut et commercial
+4. Confirmez l’ajout
 
-#### Suivi des paiements
-1. Accédez à la fiche contrat
-2. Cliquez sur "Ajouter un paiement"
-3. Remplissez le montant et la date
-4. Validez l'enregistrement
+#### **Gestion des événements**
+1. Accédez au menu "Événements"
+2. Sélectionnez **"Créer un événement"**
+3. Assignez un support manager si nécessaire
+4. Confirmez l’ajout
 
-### Conseils d'utilisation
-- Utilisez les filtres pour trouver rapidement une information
-- Les champs obligatoires sont marqués d'un astérisque (*)
-- Vous pouvez exporter les données en format CSV
-- Les modifications sont sauvegardées automatiquement
-
+####  **Filtrage avancé**
+Chaque menu possède une option pour appliquer des **filtres dynamiques**, permettant de :
+- Voir uniquement les éléments pertinents
+- Afficher uniquement les contrats en attente
+- Lister les événements sans support assigné
