@@ -17,18 +17,25 @@ def client_menu():
         choice = click.prompt("Sélectionnez une option", type=int)
 
         if choice == 1:
+            log_info("Consultation de tous les clients")
             list_all_clients()
         elif choice == 2:
+            log_info("Consultation d'un client par ID")
             get_client_by_id()
         elif choice == 3:
+            log_info("Création d'un client")
             create_client()
         elif choice == 4:
+            log_info("Mise à jour d'un client")
             update_client()
         elif choice == 5:
+            log_info("Suppression d'un client")
             delete_client()
         elif choice == 6:
+            log_info("Gestion Client Company")
             company_menu()
         elif choice == 7:
+            log_info("Filtrage des clients")
             filter_clients()
         elif choice == 0:
             break

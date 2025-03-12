@@ -1,5 +1,6 @@
 [flake8]
 format = html
 htmldir = flake8-report
-exclude = env,
+ignore = F401,E501  
+exclude = .git,__pycache__,env,venv,migrations  
 max-line-length = 120

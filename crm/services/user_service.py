@@ -1,5 +1,7 @@
 import jwt
 import os
+import sentry_sdk
+from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from sentry_sdk import capture_exception
@@ -86,4 +88,32 @@ class UserService(BaseService):
                 f"Erreur lors de la récupération des utilisateurs du département {department_id} : {str(e)}"
             )
             capture_exception(e)
+            return []
+
+    def get_all_filtered(self, filters):
+        """
+        Récupère les utilisateurs en appliquant des filtres dynamiques.
+        """
+        try:
+            query = self.repository.session.query(User).options(
+                joinedload(User.department)
+            )
+
+            if "last_name" in filters:
+                query = query.filter(User.last_name.ilike(f"%{filters['last_name']}%"))
+            if "first_name" in filters:
+                query = query.filter(
+                    User.first_name.ilike(f"%{filters['first_name']}%")
+                )
+            if "email" in filters:
+                query = query.filter(User.email.ilike(f"%{filters['email']}%"))
+            if "username" in filters:
+                query = query.filter(User.username.ilike(f"%{filters['username']}%"))
+            if "departments_id" in filters:
+                query = query.filter(User.departments_id == filters["departments_id"])
+
+            return query.all()
+        except Exception as e:
+            log_error(f"Erreur lors du filtrage des utilisateurs : {str(e)}")
+            sentry_sdk.capture_exception(e)
             return []

@@ -170,9 +170,7 @@ class EventView:
         support_id = Prompt.ask(
             "ID du Support (laisser vide si aucun)", default=""
         ).strip()
-        support_id = (
-            int(support_id) if support_id.isdigit() else None
-        )  # ✅ Convertit en int ou None
+        support_id = int(support_id) if support_id.isdigit() else None
 
         return {
             "title": title,
@@ -276,6 +274,7 @@ class EventView:
             "3": "Client ID",
             "4": "Contrat ID",
             "5": "Support ID",
+            "6": "Événements sans support",
         }
 
         # Affichage des options
@@ -304,5 +303,7 @@ class EventView:
                     filters["contracts_id"] = Prompt.ask("Entrez l'ID du contrat")
                 elif option == "5":
                     filters["support_id"] = Prompt.ask("Entrez l'ID du support")
+                elif option == "6":
+                    filters["without_support"] = True
 
         return filters

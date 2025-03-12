@@ -20,6 +20,7 @@ class UserView:
         console.print("[3] Créer un utilisateur")
         console.print("[4] Modifier un utilisateur")
         console.print("[5] Supprimer un utilisateur")
+        console.print("[6] Filter les utilisateurs")
         console.print("[0] Retour au menu principal\n")
 
     @staticmethod
@@ -157,3 +158,45 @@ class UserView:
                 )
 
         return update_data
+
+    @staticmethod
+    def prompt_user_filters():
+        """
+        Affiche un menu permettant de sélectionner plusieurs critères de filtrage des utilisateurs.
+        """
+        filters = {}
+
+        console.print(
+            "\n[bold cyan]Sélection des filtres pour les utilisateurs[/bold cyan]"
+        )
+
+        filter_options = {
+            "1": "Nom",
+            "2": "Prénom",
+            "3": "Email",
+            "4": "Nom d'utilisateur",
+            "5": "ID du Département",
+        }
+
+        for key, option in filter_options.items():
+            console.print(f"[{key}] {option}")
+
+        selected_options = Prompt.ask(
+            "Entrez les numéros des filtres à appliquer (séparés par une virgule)",
+            default="",
+        ).split(",")
+
+        for option in selected_options:
+            option = option.strip()
+            if option == "1":
+                filters["last_name"] = Prompt.ask("Entrez un nom")
+            elif option == "2":
+                filters["first_name"] = Prompt.ask("Entrez un prénom")
+            elif option == "3":
+                filters["email"] = Prompt.ask("Entrez un email")
+            elif option == "4":
+                filters["username"] = Prompt.ask("Entrez un nom d'utilisateur")
+            elif option == "5":
+                filters["departments_id"] = Prompt.ask("Entrez l'ID du département")
+
+        return filters

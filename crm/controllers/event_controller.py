@@ -16,14 +16,19 @@ def event_menu():
         choice = click.prompt("Sélectionnez une option", type=int)
 
         if choice == 1:
+            log_info("Consultation de tous les événements")
             list_all_events()
         elif choice == 2:
+            log_info("Consultation d'un événement par ID")
             get_event_by_id()
         elif choice == 3:
+            log_info("Création d'un événement")
             create_event()
         elif choice == 4:
+            log_info("Mise à jour d'un événement")
             update_event()
         elif choice == 5:
+            log_info("Suppression d'un événement")
             delete_event()
         if choice == 6:
             log_info("Filtrage des événements")

@@ -184,6 +184,8 @@ class EventService(BaseService):
                 query = query.filter(Event.contracts_id == filters["contracts_id"])
             if "support_id" in filters:
                 query = query.join(Event.users).filter(User.id == filters["support_id"])
+            if "without_support" in filters and filters["without_support"]:
+                query = query.outerjoin(Event.users).filter(User.id.is_(None))
 
             return query.all()
         except Exception as e:

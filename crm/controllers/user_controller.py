@@ -30,6 +30,9 @@ def user_menu():
         elif choice == 5:
             log_info("Suppression d'un utilisateur")
             delete_user()
+        elif choice == 6:
+            log_info("Filtrage des utilisateurs")
+            filter_users()
         elif choice == 0:
             log_info("Retour au menu principal")
             break
@@ -190,3 +193,30 @@ def delete_user(user):
         click.echo("[bold red]Une erreur est survenue.[/bold red]")
     finally:
         session.close()
+
+
+@requires_auth(read_only=True)
+def filter_users(user):
+    """
+    Filtre les utilisateurs en fonction des critères choisis.
+    """
+    try:
+        filters = UserView.prompt_user_filters()
+        with SessionLocal() as session:
+            service = UserService(session)
+            users = service.get_all_filtered(filters)
+            (
+                UserView.display_users(users)
+                if users
+                else click.echo(
+                    "[bold yellow]Aucun utilisateur trouvé avec ces critères.[/bold yellow]"
+                )
+            )
+    except Exception as e:
+        log_error(
+            f"[bold red]Erreur lors du filtrage des utilisateurs : {str(e)}[/bold red]"
+        )
+        capture_exception(e)
+        click.echo(
+            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
+        )

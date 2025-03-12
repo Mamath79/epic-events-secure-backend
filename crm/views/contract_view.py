@@ -169,9 +169,7 @@ class ContractView:
             default=str(contract.sales_contact.id if contract.sales_contact else ""),
         )
 
-        sales_contact_id = (
-            int(sales_contact_id) if sales_contact_id.isdigit() else None
-        )
+        sales_contact_id = int(sales_contact_id) if sales_contact_id.isdigit() else None
 
         return {
             "total_amount": total_amount,
