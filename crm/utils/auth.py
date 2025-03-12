@@ -4,8 +4,10 @@ from pathlib import Path
 import click
 from functools import wraps
 from dotenv import load_dotenv
+from crm.models.users_model import User
 from crm.repositories.user_repository import UserRepository
 from crm.database.base import SessionLocal
+
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -92,3 +94,15 @@ def requires_auth(required_roles=None, read_only=False):
         return decorated_function
 
     return decorator
+
+
+def get_current_user():
+    """Retourne l'utilisateur connecté actuellement."""
+    try:
+        with SessionLocal() as session:
+            user_id = getattr(session, "current_user_id", None)
+            if user_id:
+                return session.query(User).filter(User.id == user_id).first()
+    except Exception as e:
+        print(f"Erreur lors de la récupération de l'utilisateur actuel : {e}")
+        return None

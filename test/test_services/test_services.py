@@ -1,4 +1,4 @@
-from test.fixture import *
+from test.fixture import client_service, contract_service, event_service, user_service, contract_status_service, test_session
 from crm.models import Client, Contract, Event, User, ContractStatus, Department
 
 

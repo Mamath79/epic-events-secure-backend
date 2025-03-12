@@ -1,5 +1,6 @@
 import pytest
 from crm.database.base import engine
+from crm.utils.logger import log_error
 
 
 def test_connection_database():
@@ -12,4 +13,5 @@ def test_connection_database():
             print("Success !")
 
     except Exception as e:
-        pytest.fail(f"La connexion a echoué.")
+        log_error(f"Erreur de connexion à la base de données : {str(e)}")
+        pytest.fail("La connexion a échoué.")

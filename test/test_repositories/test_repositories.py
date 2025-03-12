@@ -1,4 +1,4 @@
-from test.fixture import *
+from test.fixture import test_session, client_repo, contract_repo, event_repo, user_repo, contract_status_repo
 from crm.models import Client, Contract, Event, User, ContractStatus, Department
 
 

@@ -30,13 +30,14 @@ def event_menu():
         elif choice == 5:
             log_info("Suppression d'un événement")
             delete_event()
-        if choice == 6:
+        elif choice == 6:
             log_info("Filtrage des événements")
             list_filtered_events()
         elif choice == 0:
+            log_info("Retour au menu principal")
             break
         else:
-            click.echo("Option invalide, veuillez réessayer.")
+            click.secho("Option invalide, veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
@@ -50,12 +51,12 @@ def list_all_events(user):
             if events:
                 EventView.display_events(events)
             else:
-                click.echo("Aucun événement trouvé.")
+                click.secho("Aucun événement trouvé.", fg="yellow", bold=True)
 
     except Exception as e:
         log_error(f"Erreur lors de la récupération des événements : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
@@ -71,14 +72,12 @@ def get_event_by_id(user):
             if event:
                 EventView.display_event(event)
             else:
-                click.echo("Événement introuvable.")
+                click.secho("Événement introuvable.", fg="yellow", bold=True)
 
     except Exception as e:
-        log_error(
-            f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}"
-        )
+        log_error(f"Erreur lors de la récupération de l'événement {event_id} : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 3])
@@ -91,14 +90,14 @@ def create_event(user):
             new_event = event_service.create(data, support_id=support_id)
 
             log_info(f"Événement {new_event.id} créé avec succès.")
-            click.echo(f"Événement {new_event.id} ajouté avec succès !")
+            click.secho(f"Événement {new_event.id} ajouté avec succès !", fg="green", bold=True)
 
     except ValueError as e:
-        click.echo(f"Erreur de validation : {str(e)}")
+        click.secho(f"Erreur de validation : {str(e)}", fg="yellow", bold=True)
     except Exception as e:
         log_error(f"Erreur lors de la création de l'événement : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 2, 3])
@@ -112,21 +111,21 @@ def update_event(user):
             event = event_service.get_by_id(event_id)
 
             if not event:
-                click.echo("Événement introuvable.")
+                click.secho("Événement introuvable.", fg="yellow", bold=True)
                 return
 
             update_data = EventView.prompt_event_update(event)
             updated_event = event_service.update(event_id, update_data)
 
             log_info(f"Événement {updated_event.id} mis à jour avec succès.")
-            click.echo(f"Événement {updated_event.id} mis à jour avec succès !")
+            click.secho(f"Événement {updated_event.id} mis à jour avec succès !", fg="green", bold=True)
 
     except ValueError as e:
-        click.echo(f"Erreur de validation : {str(e)}")
+        click.secho(f"Erreur de validation : {str(e)}", fg="yellow", bold=True)
     except Exception as e:
         log_error(f"Erreur lors de la mise à jour de l'événement {event_id} : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 3])
@@ -140,31 +139,26 @@ def delete_event(user):
             event = service.get_by_id(event_id)
 
             if not event:
-                click.echo("Événement introuvable.")
+                click.secho("Événement introuvable.", fg="yellow", bold=True)
                 return
 
-            confirm = click.confirm(
-                f"Voulez-vous vraiment supprimer l'événement {event.id} ?",
-                default=False,
-            )
+            confirm = click.confirm(f"Voulez-vous vraiment supprimer l'événement {event.id} ?", default=False)
             if confirm:
                 service.delete(event_id)
                 log_info(f"Événement {event.id} supprimé avec succès.")
-                click.echo("Événement supprimé avec succès.")
+                click.secho("Événement supprimé avec succès.", fg="green", bold=True)
             else:
-                click.echo("Suppression annulée.")
+                click.secho("Suppression annulée.", fg="yellow", bold=True)
 
     except Exception as e:
         log_error(f"Erreur lors de la suppression de l'événement {event_id} : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
 def list_filtered_events(user):
-    """
-    Affiche la liste des événements en appliquant des filtres sélectionnés par l'utilisateur.
-    """
+    """Affiche la liste des événements en appliquant des filtres sélectionnés par l'utilisateur."""
     session = SessionLocal()
     service = EventService(session)
     try:
@@ -173,12 +167,10 @@ def list_filtered_events(user):
         if filtered_events:
             EventView.display_events(filtered_events)
         else:
-            click.echo(
-                "\n[bold yellow]Aucun événement trouvé avec ces filtres.[/bold yellow]"
-            )
+            click.secho("Aucun événement trouvé avec ces filtres.", fg="yellow", bold=True)
     except Exception as e:
         log_error(f"Erreur lors du filtrage des événements : {str(e)}")
         capture_exception(e)
-        click.echo("Une erreur s'est produite. Veuillez réessayer.")
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
     finally:
         session.close()

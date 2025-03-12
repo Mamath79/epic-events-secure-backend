@@ -8,9 +8,7 @@ from crm.utils.logger import log_error, log_info
 
 
 def contract_menu():
-    """
-    Menu interactif pour la gestion des contrats.
-    """
+    """Menu interactif pour la gestion des contrats."""
     while True:
         ContractView.show_menu()
         choice = click.prompt("Sélectionnez une option", type=int)
@@ -31,21 +29,19 @@ def contract_menu():
             log_info("Suppression d'un contrat")
             delete_contract()
         elif choice == 6:
-            log_info("Sconsultation par filtres")
+            log_info("Consultation par filtres")
             filter_contracts()
         elif choice == 0:
             log_info("Retour au menu principal")
             break
         else:
             log_error(f"Option invalide sélectionnée : {choice}")
-            click.echo("\n[bold red]Option invalide, veuillez réessayer.[/bold red]")
+            click.secho("Option invalide, veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
 def list_all_contracts(user):
-    """
-    Affiche la liste de tous les contrats.
-    """
+    """Affiche la liste de tous les contrats."""
     session = SessionLocal()
     service = ContractService(session)
     try:
@@ -53,27 +49,19 @@ def list_all_contracts(user):
         if contracts:
             ContractView.display_contracts(contracts)
         else:
-            click.echo("\n[bold yellow]Aucun contrat trouvé.[/bold yellow]")
+            click.secho("Aucun contrat trouvé.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la récupération des contrats : {e} [/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération des contrats : {e}")
         capture_exception(e)
-        click.echo(
-            "\n[bold red]Une erreur est survenue lors de l'affichage des contrats.[/bold red]"
-        )
+        click.secho("Une erreur est survenue lors de l'affichage des contrats.", fg="red", bold=True)
     finally:
         session.close()
 
 
 @requires_auth(read_only=True)
 def get_contract_by_id(user):
-    """
-    Affiche les détails d'un contrat par ID.
-    """
-    contract_id = click.prompt(
-        "\n[cyan bold]Entrez l'ID du contrat[/cyan bold]", type=int
-    )
+    """Affiche les détails d'un contrat par ID."""
+    contract_id = click.prompt("Entrez l'ID du contrat", type=int)
 
     session = SessionLocal()
     service = ContractService(session)
@@ -82,22 +70,18 @@ def get_contract_by_id(user):
         if contract:
             ContractView.display_contract(contract)
         else:
-            click.echo("\n[bold yellow]Contrat introuvable.[/bold yellow]")
+            click.secho("Contrat introuvable.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la récupération du contrat {contract_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération du contrat {contract_id} : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
     finally:
         session.close()
 
 
 @requires_auth(required_roles=[1, 3])
 def create_contract(user):
-    """
-    Ajoute un nouveau contrat.
-    """
+    """Ajoute un nouveau contrat."""
     data = ContractView.prompt_contract_data()
     if not data:
         return  # Annulation si aucune donnée saisie
@@ -106,39 +90,29 @@ def create_contract(user):
     service = ContractService(session)
     try:
         new_contract = service.create(data)
-        log_info(
-            f"[bold green]Contrat {new_contract.id} créé avec succès ![/bold green]"
-        )
-        click.echo(
-            f"[bold green]Contrat {new_contract.id} ajouté avec succès ![/bold green]"
-        )
+        log_info(f"Contrat {new_contract.id} créé avec succès !")
+        click.secho(f"Contrat {new_contract.id} ajouté avec succès !", fg="green", bold=True)
     except ValueError as e:
-        click.echo(
-            f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]"
-        )  # Affichage clair des erreurs utilisateur
+        click.secho(f"Erreur de validation : {str(e)}", fg="yellow", bold=True)
     except Exception as e:
-        log_error(f"\n[bold red]Erreur lors de la création du contrat : {e}[/bold red]")
+        log_error(f"Erreur lors de la création du contrat : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Erreur lors de la création du contrat.[/bold red]")
+        click.secho("Erreur lors de la création du contrat.", fg="red", bold=True)
     finally:
         session.close()
 
 
 @requires_auth(required_roles=[1, 3])
 def update_contract(user):
-    """
-    Met à jour un contrat existant avec un menu interactif.
-    """
-    contract_id = click.prompt(
-        "\n[bold cyan]Entrez l'ID du contrat à modifier[/bold cyan]", type=int
-    )
+    """Met à jour un contrat existant avec un menu interactif."""
+    contract_id = click.prompt("Entrez l'ID du contrat à modifier", type=int)
 
     session = SessionLocal()
     service = ContractService(session)
     try:
         contract = service.get_by_id(contract_id)
         if not contract:
-            click.echo("\n[bold yellow]Contrat introuvable.[/bold yellow]")
+            click.secho("Contrat introuvable.", fg="yellow", bold=True)
             return
 
         update_data = ContractView.prompt_contract_update(contract)
@@ -146,90 +120,59 @@ def update_contract(user):
             return
 
         updated_contract = service.update(contract_id, update_data)
-        log_info(
-            f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]"
-        )
-        click.echo(
-            f"[bold green]Contrat {updated_contract.id} mis à jour avec succès ![/bold green]"
-        )
-
+        log_info(f"Contrat {updated_contract.id} mis à jour avec succès !")
+        click.secho(f"Contrat {updated_contract.id} mis à jour avec succès !", fg="green", bold=True)
     except ValueError as e:
-        click.echo(
-            f"\n[bold yellow]Erreur de validation : {str(e)}[/bold yellow]"
-        )  # Affichage clair des erreurs utilisateur
+        click.secho(f"Erreur de validation : {str(e)}", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la mise à jour du contrat {contract_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la mise à jour du contrat {contract_id} : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
     finally:
         session.close()
 
 
 @requires_auth(required_roles=[1, 3])
 def delete_contract(user):
-    """
-    Supprime un contrat avec confirmation.
-    """
-    contract_id = click.prompt(
-        "\n[bold cyan]Entrez l'ID du contrat à supprimer[/bold cyan]", type=int
-    )
+    """Supprime un contrat avec confirmation."""
+    contract_id = click.prompt("Entrez l'ID du contrat à supprimer", type=int)
 
     session = SessionLocal()
     service = ContractService(session)
     try:
         contract = service.get_by_id(contract_id)
         if not contract:
-            click.echo("\n[bold yellow]Contrat introuvable.[/bold yellow]")
+            click.secho("Contrat introuvable.", fg="yellow", bold=True)
             return
 
-        confirm = click.confirm(
-            f"\n[bold yellow]Voulez-vous vraiment supprimer le contrat {contract.id} ?[/bold yellow]",
-            default=False,
-        )
+        confirm = click.confirm(f"Voulez-vous vraiment supprimer le contrat {contract.id} ?", default=False)
         if confirm:
             service.delete(contract_id)
-            log_info(
-                f"[bold green]Contrat {contract.id} supprimé avec succès.[/bold green]"
-            )
-            click.echo("\n[bold green]Contrat supprimé avec succès.[/bold green]")
+            log_info(f"Contrat {contract.id} supprimé avec succès.")
+            click.secho("Contrat supprimé avec succès.", fg="green", bold=True)
         else:
-            click.echo("\n[bold yellow]Suppression annulée.[/bold yellow]")
+            click.secho("Suppression annulée.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la suppression du contrat {contract_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la suppression du contrat {contract_id} : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
     finally:
         session.close()
 
 
 @requires_auth(read_only=True)
 def filter_contracts(user):
-    """
-    Filtre les contrats en fonction des critères choisis par l'utilisateur.
-    """
+    """Filtre les contrats en fonction des critères choisis par l'utilisateur."""
     try:
-        filters = (
-            ContractView.prompt_contract_filters()
-        )  # Demande les critères de filtrage
+        filters = ContractView.prompt_contract_filters()  # Demande les critères de filtrage
         with SessionLocal() as session:
             service = ContractService(session)
             contracts = service.get_all_filtered(filters)  # Applique les filtres
-            (
+            if contracts:
                 ContractView.display_contracts(contracts)
-                if contracts
-                else click.echo(
-                    "[bold yellow]Aucun contrat correspondant trouvé.[/bold yellow]"
-                )
-            )
+            else:
+                click.secho("Aucun contrat correspondant trouvé.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors du filtrage des contrats : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors du filtrage des contrats : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)

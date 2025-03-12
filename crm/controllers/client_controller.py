@@ -9,9 +9,7 @@ from crm.controllers.company_controller import company_menu
 
 
 def client_menu():
-    """
-    Menu de gestion des clients.
-    """
+    """Menu de gestion des clients."""
     while True:
         ClientView.show_menu()
         choice = click.prompt("Sélectionnez une option", type=int)
@@ -40,158 +38,107 @@ def client_menu():
         elif choice == 0:
             break
         else:
-            click.echo("\n[bold red]Option invalide, veuillez réessayer.[/bold red]")
+            click.secho("Option invalide, veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
 def list_all_clients(user):
-    """
-    Liste tous les clients.
-    """
+    """Liste tous les clients."""
     try:
         with SessionLocal() as session:
             service = ClientService(session)
             clients = service.get_all()
-            (
+            if clients:
                 ClientView.display_clients(clients)
-                if clients
-                else click.echo("[bold yellow]Aucun client trouvé.[/bold yellow]")
-            )
+            else:
+                click.secho("Aucun client trouvé.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la récupération des clients : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération des clients : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
 def get_client_by_id(user):
-    """
-    Récupère un client par son ID.
-    """
+    """Récupère un client par son ID."""
     try:
-        client_id = click.prompt(
-            "[bold cyan]Entrez l'ID du client[/bold cyan]", type=int
-        )
+        client_id = click.prompt("Entrez l'ID du client", type=int)
         with SessionLocal() as session:
             service = ClientService(session)
             client = service.get_by_id(client_id)
-            (
+            if client:
                 ClientView.display_client(client)
-                if client
-                else click.echo("[bold yellow]Client introuvable.[/bold yellow]")
-            )
+            else:
+                click.secho("Client introuvable.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la récupération du client {client_id} : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération du client {client_id} : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 3])
 def create_client(user):
-    """
-    Création d'un nouveau client.
-    """
+    """Création d'un nouveau client."""
     try:
         data = ClientView.prompt_client_data()
         with SessionLocal() as session:
             service = ClientService(session)
             new_client = service.create(data)
-            log_info(
-                f"[bold green]Client {new_client.first_name} {new_client.last_name} créé avec succès.[/bold green]"
-            )
-            click.echo(
-                f"[bold green]Client {new_client.first_name} {new_client.last_name} ajouté avec succès ![/bold green]"
-            )
+            log_info(f"Client {new_client.first_name} {new_client.last_name} créé avec succès.")
+            click.secho(f"Client {new_client.first_name} {new_client.last_name} ajouté avec succès !", fg="green", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la création du client : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors de la création du client : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 3])
 def update_client(user):
-    """
-    Mise à jour d'un client existant.
-    """
+    """Mise à jour d'un client existant."""
     try:
         client_id = click.prompt("Entrez l'ID du client à modifier", type=int)
         with SessionLocal() as session:
             service = ClientService(session)
             client = service.get_by_id(client_id)
             if not client:
-                click.echo("[bold yelow]Client introuvable.[/bold yellow]")
+                click.secho("Client introuvable.", fg="yellow", bold=True)
                 return
             new_data = ClientView.prompt_client_update(client)
             updated_client = service.update(client_id, new_data)
-            log_info(
-                f"[bold green]Client {updated_client.first_name} {updated_client.last_name} mis à jour.[/bold green]"
-            )
-            click.echo(
-                f"[bold green]Client {updated_client.first_name} {updated_client.last_name} mis à jour ![/bold green]"
-            )
+            log_info(f"Client {updated_client.first_name} {updated_client.last_name} mis à jour.")
+            click.secho(f"Client {updated_client.first_name} {updated_client.last_name} mis à jour !", fg="green", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la mise à jour du client {client_id} : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors de la mise à jour du client {client_id} : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1])
 def delete_client(user):
-    """
-    Suppression d'un client.
-    """
+    """Suppression d'un client."""
     try:
-        client_id = click.prompt(
-            "\n[bold cyan]Entrez l'ID du client à supprimer[/bod cyan]", type=int
-        )
+        client_id = click.prompt("Entrez l'ID du client à supprimer", type=int)
         with SessionLocal() as session:
             service = ClientService(session)
             client = service.get_by_id(client_id)
             if not client:
-                click.echo("[bold yellow]Client introuvable.[/bold yellow]")
+                click.secho("Client introuvable.", fg="yellow", bold=True)
                 return
-            if click.confirm(
-                f"[bold yellow]Voulez-vous vraiment supprimer {client.first_name} {client.last_name} ?[/bold yellow]",
-                default=False,
-            ):
+            if click.confirm(f"Voulez-vous vraiment supprimer {client.first_name} {client.last_name} ?", default=False):
                 service.delete(client_id)
-                log_info(
-                    f"[bold green]Client {client.first_name} {client.last_name} supprimé.[/bold green]"
-                )
-                click.echo("[bold green]Client supprimé avec succès.[/bold green]")
+                log_info(f"Client {client.first_name} {client.last_name} supprimé.")
+                click.secho("Client supprimé avec succès.", fg="green", bold=True)
             else:
-                click.echo("[bold yellow]Suppression annulée.[/bold yellow]")
+                click.secho("Suppression annulée.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la suppression du client {client_id} : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors de la suppression du client {client_id} : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
 def filter_clients(user):
-    """
-    Filtre les clients selon des critères définis par l'utilisateur.
-    """
+    """Filtre les clients selon des critères définis par l'utilisateur."""
     try:
         with SessionLocal() as session:
             service = ClientService(session)
@@ -201,13 +148,8 @@ def filter_clients(user):
             if filtered_clients:
                 ClientView.display_clients(filtered_clients)
             else:
-                click.echo(
-                    "[bold yellow]Aucun client ne correspond aux critères sélectionnés.[/bold yellow]"
-                )
-
+                click.secho("Aucun client ne correspond aux critères sélectionnés.", fg="yellow", bold=True)
     except Exception as e:
         log_error(f"Erreur lors du filtrage des clients : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)

@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from crm.database.base import Base
 from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 
 ph = PasswordHasher()
@@ -52,7 +53,10 @@ class User(Base):
     def check_password(self, password):
         try:
             return ph.verify(self._password, password)
-        except:
+        except VerifyMismatchError:  # Capture uniquement l'erreur de mot de passe invalide
+            return False
+        except Exception as e:  # Capture les autres erreurs et logue-les
+            print(f"Erreur inattendue lors de la vérification du mot de passe : {e}")
             return False
 
     def __repr__(self):

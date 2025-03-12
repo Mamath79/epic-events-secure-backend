@@ -38,7 +38,7 @@ def user_menu():
             break
         else:
             log_error(f"Option invalide sélectionnée : {choice}")
-            click.echo("Option invalide, veuillez réessayer.")
+            click.secho("Option invalide, veuillez réessayer.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 2, 3])
@@ -46,24 +46,18 @@ def list_all_users(user):
     """
     Affiche la liste des utilisateurs.
     """
-    session = SessionLocal()
-    service = UserService(session)
     try:
-        users = service.get_all()
-        if users:
-            UserView.display_users(users)
-        else:
-            click.echo("\n[bold yellow]Aucun utilisateur trouvé.[/bold yellow]")
+        with SessionLocal() as session:
+            service = UserService(session)
+            users = service.get_all()
+            if users:
+                UserView.display_users(users)
+            else:
+                click.secho("Aucun utilisateur trouvé.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la récupération des utilisateurs : {e} [/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération des utilisateurs : {e}")
         capture_exception(e)
-        click.echo(
-            "\n[bold red]Une erreur est survenue lors de l'affichage des utilisateurs.[/bold red]"
-        )
-    finally:
-        session.close()
+        click.secho("Une erreur est survenue lors de l'affichage des utilisateurs.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1, 2, 3])
@@ -71,27 +65,20 @@ def get_user_by_id(user):
     """
     Affiche les détails d'un utilisateur par ID.
     """
+    user_id = click.prompt("Entrez l'ID de l'utilisateur", type=int)
 
-    user_id = click.prompt(
-        "\n[cyan bold]Entrez l'ID de l'utilisateur[/cyan bold]", type=int
-    )
-
-    session = SessionLocal()
-    service = UserService(session)
     try:
-        user = service.get_by_id(user_id)
-        if user:
-            UserView.display_user(user)
-        else:
-            click.echo("Utilisateur introuvable.")
+        with SessionLocal() as session:
+            service = UserService(session)
+            user = service.get_by_id(user_id)
+            if user:
+                UserView.display_user(user)
+            else:
+                click.secho("Utilisateur introuvable.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la récupération de l'utilisateur {user_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la récupération de l'utilisateur {user_id} : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
-    finally:
-        session.close()
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1])
@@ -101,26 +88,16 @@ def create_user(user):
     """
     data = UserView.prompt_user_data()
 
-    session = SessionLocal()
-    service = UserService(session)
     try:
-        new_user = service.create(data)
-        log_info(
-            f"[bold green]Utilisateur {new_user.first_name} {new_user.last_name} créé avec succès ![/bold green]"
-        )
-        click.echo(
-            f"[bold green]Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès ![/bold green]"
-        )
+        with SessionLocal() as session:
+            service = UserService(session)
+            new_user = service.create(data)
+            log_info(f"Utilisateur {new_user.first_name} {new_user.last_name} créé avec succès.")
+            click.secho(f"Utilisateur {new_user.first_name} {new_user.last_name} ajouté avec succès !", fg="green", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la création de l'utilisateur : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la création de l'utilisateur : {e}")
         capture_exception(e)
-        click.echo(
-            "\n[bold red]Erreur lors de la création de l'utilisateur.[/bold red]"
-        )
-    finally:
-        session.close()
+        click.secho("Erreur lors de la création de l'utilisateur.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1])
@@ -130,32 +107,23 @@ def update_user(user):
     """
     user_id = click.prompt("Entrez l'ID de l'utilisateur à modifier", type=int)
 
-    session = SessionLocal()
-    service = UserService(session)
     try:
-        user = service.get_by_id(user_id)
-        if not user:
-            click.echo("\n[bold yellow]Utilisateur introuvable.[/bold yellow]")
-            return
+        with SessionLocal() as session:
+            service = UserService(session)
+            user = service.get_by_id(user_id)
+            if not user:
+                click.secho("Utilisateur introuvable.", fg="yellow", bold=True)
+                return
 
-        update_data = UserView.prompt_user_update(user)
-        updated_user = service.update(user_id, update_data)
+            update_data = UserView.prompt_user_update(user)
+            updated_user = service.update(user_id, update_data)
 
-        log_info(
-            f"[bold green]Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour !.[/bold green]"
-        )
-        click.echo(
-            f"[bold green]Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour ![/bold green]"
-        )
-
+            log_info(f"Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour.")
+            click.secho(f"Utilisateur {updated_user.first_name} {updated_user.last_name} mis à jour !", fg="green", bold=True)
     except Exception as e:
-        log_error(
-            f"\n[bold red]Erreur lors de la mise à jour de l'utilisateur {user_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la mise à jour de l'utilisateur {user_id} : {e}")
         capture_exception(e)
-        click.echo("\n[bold red]Une erreur est survenue.[/bold red]")
-    finally:
-        session.close()
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
 
 
 @requires_auth(required_roles=[1])
@@ -165,34 +133,25 @@ def delete_user(user):
     """
     user_id = click.prompt("Entrez l'ID de l'utilisateur à supprimer", type=int)
 
-    session = SessionLocal()
-    service = UserService(session)
     try:
-        user = service.get_by_id(user_id)
-        if not user:
-            click.echo("[bold yellow]Utilisateur introuvable.[/bold yellow]")
-            return
+        with SessionLocal() as session:
+            service = UserService(session)
+            user = service.get_by_id(user_id)
+            if not user:
+                click.secho("Utilisateur introuvable.", fg="yellow", bold=True)
+                return
 
-        confirm = click.confirm(
-            f"[bold yellow]Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?[/bold yellow]",
-            default=False,
-        )
-        if confirm:
-            service.delete(user_id)
-            log_info(
-                f"[bold green]Utilisateur {user.first_name} {user.last_name} supprimé.[/bold green]"
-            )
-            click.echo("[bold green]Utilisateur supprimé avec succès.[/bold green]")
-        else:
-            click.echo("[bold yellow]Suppression annulée.[/bold yellow]")
+            confirm = click.confirm(f"Voulez-vous vraiment supprimer {user.first_name} {user.last_name} ?", default=False)
+            if confirm:
+                service.delete(user_id)
+                log_info(f"Utilisateur {user.first_name} {user.last_name} supprimé.")
+                click.secho("Utilisateur supprimé avec succès.", fg="green", bold=True)
+            else:
+                click.secho("Suppression annulée.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors de la suppression de l'utilisateur {user_id} : {e}[/bold red]"
-        )
+        log_error(f"Erreur lors de la suppression de l'utilisateur {user_id} : {e}")
         capture_exception(e)
-        click.echo("[bold red]Une erreur est survenue.[/bold red]")
-    finally:
-        session.close()
+        click.secho("Une erreur est survenue.", fg="red", bold=True)
 
 
 @requires_auth(read_only=True)
@@ -205,18 +164,11 @@ def filter_users(user):
         with SessionLocal() as session:
             service = UserService(session)
             users = service.get_all_filtered(filters)
-            (
+            if users:
                 UserView.display_users(users)
-                if users
-                else click.echo(
-                    "[bold yellow]Aucun utilisateur trouvé avec ces critères.[/bold yellow]"
-                )
-            )
+            else:
+                click.secho("Aucun utilisateur trouvé avec ces critères.", fg="yellow", bold=True)
     except Exception as e:
-        log_error(
-            f"[bold red]Erreur lors du filtrage des utilisateurs : {str(e)}[/bold red]"
-        )
+        log_error(f"Erreur lors du filtrage des utilisateurs : {str(e)}")
         capture_exception(e)
-        click.echo(
-            "[bold red]Une erreur s'est produite. Veuillez réessayer.[/bold red]"
-        )
+        click.secho("Une erreur s'est produite. Veuillez réessayer.", fg="red", bold=True)
