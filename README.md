@@ -1,193 +1,167 @@
-# Epic Events CRM
+# Epic Events CRM — Secure Python + SQL (P12)
 
-## Description
-Epic Events CRM est une application de gestion de la relation client (CRM) développée en Python. Cette application permet de gérer les clients, les contrats et les événements pour une entreprise d'événementiel.
+> **Educational project (OpenClassrooms)** — design a secure, role‑aware back‑end architecture in **Python + SQL** for a small CRM. Console‑driven UX with a layered codebase.
 
-## Prérequis
-- Python 3.8 ou supérieur
-- MySQL
-- Un environnement virtuel Python
+---
 
-## Installation
+## ✨ Key features
 
-1. Clonez le dépôt :
+- 🔐 **Authentication**: login with **JWT** session tokens
+- 🧂 **Password hashing**: **Argon2**
+- 👥 **RBAC**: department‑based permissions (e.g., Sales / Support / Management)
+- 🗃️ **Relational data model**: customers, contracts, events & assignments
+- 🧱 **Layered architecture**: `controllers` → `services` → `repositories` (SQLAlchemy)
+- 🧹 Quality tooling: **flake8**, **black**, **pytest** (with coverage)
+
+> This codebase is intended for learning and portfolio demonstration. Harden further before production.
+
+---
+
+## 🧱 Tech stack
+
+- **Python 3.10+**
+- **SQLAlchemy** (ORM)
+- **MySQL** (dev/prod) — SQLite possible for local experiments
+- **PyJWT** (JWT), **argon2‑cffi** (password hashing)
+- Tooling: **flake8**, **black**, **pytest**, **coverage**
+
+---
+
+## 📦 Project structure (excerpt)
+
+```
+.
+├─ main.py                         # Application entry point (CLI)
+├─ config.py                       # Settings (DB URL, secrets, etc.)
+├─ requirements.txt
+├─ epic_events_databse.png         # Database schema overview
+└─ crm/
+   ├─ controllers/                 # I/O & command routing
+   ├─ services/                    # Business rules (RBAC, validations)
+   ├─ repositories/                # DB access via SQLAlchemy
+   ├─ models/                      # ORM models (User, Customer, Contract, Event...)
+   ├─ security/                    # auth, JWT, password hashing
+   └─ utils/                       # helpers (validation, formatting, etc.)
+```
+
+> Names may vary slightly; see the code for the exact modules present in this repository.
+
+---
+
+## 🚀 Quickstart
+
+### 1) Clone & create a virtual environment
+
 ```bash
 git clone https://github.com/Mamath79/OC_P12_D-veloppez-une-architecture-back-end-securisee-avec-Python-et-SQL.git
-cd epic_events
-```
-
-2. Créez et activez un environnement virtuel :
-```bash
-python -m venv env
-source env/bin/activate  # Sur Unix/macOS
-# ou
-.\env\Scripts\activate  # Sur Windows
-```
-
-3. Installez les dépendances :
-```bash
+cd OC_P12_D-veloppez-une-architecture-back-end-securisee-avec-Python-et-SQL
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Configuration de l'environnement :
-Créez un fichier `.env` à la racine du projet avec les variables suivantes :
-```env
-DB_USER=votre_utilisateur
-DB_PASSWORD=votre_mot_de_passe
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=nom_de_votre_base
+### 2) Configure environment
+
+Create a `.env` file (or edit `config.py`) with your database and secret settings:
+
+```ini
+# Example .env
+DATABASE_URL=mysql+pymysql://user:password@localhost:3306/epic_events
+JWT_SECRET=change-me
+JWT_ACCESS_TTL_MINUTES=60
+ARGON2_TIME_COST=2
+ARGON2_MEMORY_COST=65536
+ARGON2_PARALLELISM=2
 ```
 
-## Structure du Projet
-```
-epic_events/
-├── crm/
-│   ├── controllers/    # Logique de contrôle
-│   ├── models/        # Modèles de données
-│   ├── views/         # Interface utilisateur
-│   ├── services/      # Services métier
-│   ├── repositories/  # Accès aux données
-│   ├── database/      # Configuration de la base de données
-│   └── utils/         # Utilitaires
-├── test/              # Tests unitaires et d'intégration
-├── main.py           # Point d'entrée de l'application
-├── config.py         # Configuration globale
-└── requirements.txt   # Dépendances du projet
-```
+> You can also use SQLite locally: `sqlite:///./epic_events.db`
 
-## Utilisation
+### 3) Initialize DB & run
 
-Pour lancer l'application :
 ```bash
 python main.py
 ```
 
-## Tests
+- The app will connect to the DB and, if implemented, create tables from SQLAlchemy models.
+- Follow the interactive prompts to **sign in**, **create customers**, **contracts**, **events**, and **assign support**.
 
-Pour exécuter les tests :
+---
+
+## 👥 Roles & permissions (overview)
+
+- **Sales**: manage customers and contracts; create events tied to signed contracts
+- **Management**: review/assign events to support staff; oversee contracts
+- **Support**: handle assigned events (status, notes)
+
+Permissions are enforced in the `services` layer and checked in controllers before executing a command.
+
+---
+
+## 🧪 Tests & quality
+
+Run tests (if present):
+
 ```bash
-pytest
+pytest -q --maxfail=1
 ```
 
-Pour générer un rapport de couverture :
+Measure coverage:
+
 ```bash
-coverage run -m pytest
-coverage report
+pytest -q --cov=crm --cov-report=term-missing
 ```
 
-## Qualité du Code
+Code style / lint:
 
-Le projet utilise :
-- Flake8 pour le linting
-- Black pour le formatage
-- Coverage.py pour la couverture des tests
-
-Pour vérifier la qualité du code :
 ```bash
-flake8
+black .
+flake8 .
 ```
 
-## Sécurité
-- Authentification sécurisée avec JWT
-- Hachage des mots de passe avec Argon2
-- Protection contre les injections SQL avec SQLAlchemy
-- Variables d'environnement pour les données sensibles
+---
 
-## Base de données
-Le projet utilise MySQL comme système de gestion de base de données. Un schéma de la base de données est disponible dans le fichier `epic_events_databse.png`.
+## 🛡️ Security notes
 
-## Manuel Utilisateur
+- **Passwords** are hashed with **Argon2** (no plaintext storage)
+- **JWT** tokens carry minimal claims and short TTLs; refresh as needed
+- **Parameterized queries** via SQLAlchemy protect against SQL injection
+- Secrets should be **kept out of VCS**; use environment variables for config
 
-### Navigation dans l'application
+---
 
-#### Menu Principal
-Le menu principal vous permet d'accéder aux différentes fonctionnalités de l'application :
+## 🗺️ Database schema (high level)
 
-- **Gestion des clients**
-- **Gestion des contrats**
-- **Gestion des événements**
-- **Gestion des utilisateurs**
-- **Filtrage avancé**
 
-#### Gestion des Clients
-La vue liste des clients affiche un tableau avec les informations principales :
-- **Nom de l'entreprise**
-- **Contact principal**
-- **Email**
-- **Téléphone**
-- **Date de création**
-- **Contrats associés**
 
-#####  **Filtrage dynamique**
-Possibilité de **filtrer** la liste des clients selon plusieurs critères :
-- Nom
-- Prénom
-- Email
-- ID de l'entreprise
+Typical entities:
 
-#### Gestion des Contrats
-Le tableau des contrats affiche :
-- **Référence du contrat**
-- **Client associé**
-- **Montant total**
-- **Montant restant à payer**
-- **Statut du contrat**
-- **Commercial responsable**
+- `User` (department/role)
+- `Customer`
+- `Contract` (amount, status, linked to Customer & Sales)
+- `Event` (date, location, support assignment, status)
 
-#####  **Filtrage avancé**
-- Statut du contrat (signé, en attente, annulé)
-- ID du client
-- ID du commercial
-- Montant minimum/maximum
+---
 
-#### Gestion des Événements
-Chaque événement est lié à :
-- Un client
-- Un contrat
-- Un support manager (si assigné)
+## 🛳️ Deployment (example)
 
-#####  **Filtrage dynamique**
-- Date de début / fin
-- ID du client
-- ID du contrat
-- **Filtrage des événements sans support affecté**
+- Use **MySQL** or **PostgreSQL** with managed backups
+- Export secrets to the environment (`DATABASE_URL`, `JWT_SECRET`)
+- Run as a **systemd service** or container; add structured logging
+- Monitor with Sentry/ELK; restrict DB network access
 
-#### Gestion des Utilisateurs
-Les utilisateurs sont affichés avec :
-- **Nom et prénom**
-- **Email**
-- **Nom d’utilisateur**
-- **Département**
+---
 
-#####  **Filtrage par rôles**
-- Nom
-- Prénom
-- Email
-- ID du département
+## 🧭 Roadmap ideas
 
-### Fonctionnalités Principales
+- Replace CLI with a **REST API** (FastAPI/Django REST Framework)
+- Admin interface for management
+- Email notifications for contract/event status
+- Fine‑grained permissions & audit logging
 
-####  **Création d'un nouveau client**
-1. Accédez au menu "Clients"
-2. Sélectionnez **"Créer un client"**
-3. Remplissez le formulaire (nom, prénom, entreprise, etc.)
-4. Confirmez l’ajout
+---
 
-#### **Création d'un contrat**
-1. Accédez à la fiche client
-2. Sélectionnez **"Créer un contrat"**
-3. Saisissez le montant total, montant payé, statut et commercial
-4. Confirmez l’ajout
+## 👤 Author
 
-#### **Gestion des événements**
-1. Accédez au menu "Événements"
-2. Sélectionnez **"Créer un événement"**
-3. Assignez un support manager si nécessaire
-4. Confirmez l’ajout
+**Mathieu Vieillefont**\
+LinkedIn: [https://www.linkedin.com/in/mathieu-vieillefont/](https://www.linkedin.com/in/mathieu-vieillefont/)\
+Email: [mathieu.vieillefont@gmail.com](mailto\:mathieu.vieillefont@gmail.com)
 
-####  **Filtrage avancé**
-Chaque menu possède une option pour appliquer des **filtres dynamiques**, permettant de :
-- Voir uniquement les éléments pertinents
-- Afficher uniquement les contrats en attente
-- Lister les événements sans support assigné
